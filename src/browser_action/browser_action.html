@@ -1,0 +1,30 @@
+<!doctype html>
+<html ng-app="Pathfinder">
+<head>
+    <style type="text/css">
+        #mainPopup {
+            padding: 10px;
+            height: 400px;
+            width: 600px;
+            font-family: Helvetica, Ubuntu, Arial, sans-serif;
+        }
+    </style>
+    <link rel="stylesheet" href="../../bootstrap/css/bootstrap.css">
+</head>
+<body id="mainPopup" ng-controller="SuperCtrl">
+<div class="container">
+    <div ng-view=""></div>
+
+
+</div>
+<script src="../../js/jquery/jquery.js"></script>
+<script src="../../bootstrap/js/bootstrap.js"></script>
+<script src="../../js/angular/angular.js"></script>
+<script src="../../js/angular/angular-route.js"></script>
+<script src="../../js/utils/arbor.js"></script>
+<script src="../../js/utils/arbor-tween.js.js"></script>
+<script src="browser_action.js"></script>
+<script src="js/SuperCtrl.js"></script>
+<script src="js/WelcomeCtrl.js"></script>
+</body>
+</html>
