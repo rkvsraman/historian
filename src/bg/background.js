@@ -12,11 +12,18 @@ chrome.runtime.onMessage.addListener(function(message,sender,response){
 
     console.log("Message received");
     if(message.request === 'getTabInfo'){
+        console.log('%j',tabs[current_tab]) ;
         response(tabs[current_tab]);
+
     }
 });
 
 chrome.tabs.onCreated.addListener(function (tab) {
+
+    if(tab.url.indexOf('chrome-devtools') != -1)
+    {
+        return;
+    }
 
     console.log("Created " + tab.id + " " + tab.url);
     var tabInfo = {};
@@ -27,7 +34,7 @@ chrome.tabs.onCreated.addListener(function (tab) {
     node.title = tab.title;
     tabInfo.lastURL = tab.url;
     tabs[tab.id] = tabInfo;
-    console.log("%j", tabInfo);
+   // console.log("%j", tabInfo);
     current_tab = tab.id;
 
 
@@ -39,6 +46,10 @@ chrome.tabs.onUpdated.addListener(function (tabID, changeinfo, tab) {
      + changeinfo.url
      + "\n"
      + changeinfo.status);*/
+    if(tab.url.indexOf('chrome-devtools') != -1)
+    {
+        return;
+    }
     if (changeinfo.status === 'loading') {
         var tabInfo = tabs[tabID];
         if (tabInfo.lastURL != tab.url) {
@@ -64,7 +75,7 @@ chrome.tabs.onUpdated.addListener(function (tabID, changeinfo, tab) {
         if (destNode) {
             destNode.title = tab.title;
         }
-        console.log("%j", tabInfo);
+        //console.log("%j", tabInfo);
 
 
     }
@@ -73,16 +84,19 @@ chrome.tabs.onUpdated.addListener(function (tabID, changeinfo, tab) {
 
 chrome.tabs.onActivated.addListener(function (activeInfo) {
 
+
     console.log("Activated " + activeInfo.tabId);
     current_tab = activeInfo.tabId;
 });
 chrome.tabs.onDetached.addListener(function (tabId, detachInfo) {
+
 
     console.log("Detached " + tabId);
     current_tab = tabId;
 });
 
 chrome.tabs.onAttached.addListener(function (tabId, attachInfo) {
+
 
     console.log("Attached " + tabId);
     current_tab = tabId;
