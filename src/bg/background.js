@@ -1,7 +1,5 @@
-
-
 var tabs = {};
-var Graph = require("data-structures").Graph;
+var Graph = require('data-structures').Graph;
 
 
 var current_tab = 0;
@@ -15,28 +13,54 @@ chrome.tabs.onCreated.addListener(function (tab) {
 
     console.log("Created " + tab.id + " " + tab.url);
     var tabInfo = {};
-    tabInfo.id = tabID;
+    tabInfo.id = tab.id;
     tabInfo.graph = new Graph();
-    tabInfo.graph.addNode(tab.url);
+
+    var node = tabInfo.graph.addNode(tab.url);
+    node.title = tab.title;
     tabInfo.lastURL = tab.url;
-    tabs[tabID] = tabInfo;
+    tabs[tab.id] = tabInfo;
+    console.log("%j", tabInfo);
+    current_tab = tab.id;
 
 
 });
 
 chrome.tabs.onUpdated.addListener(function (tabID, changeinfo, tab) {
 
-    console.log("Changed " + tabID + " \n" + tab.url + "\n "
-        + changeinfo.url
-        + "\n"
-        + changeinfo.status);
+    /* console.log("Changed " + tabID + " \n" + tab.url + "\n "
+     + changeinfo.url
+     + "\n"
+     + changeinfo.status);*/
     if (changeinfo.status === 'loading') {
         var tabInfo = tabs[tabID];
-        if(tabInfo.lastURL != tab.url){
-            var node1 = tabInfo.graph.getNode(tabInfo.lastURL);
+        if (tabInfo.lastURL != tab.url) {
+
+            var sourceNode = tabInfo.graph.getNode(tabInfo.lastURL);
+            var destNode = tabInfo.graph.getNode(tab.url);
+
+            if (!destNode) {
+                destNode = tabInfo.graph.addNode(tab.url);
+                destNode.title = tab.title;
+            }
+            if (sourceNode && destNode) {
+                tabInfo.graph.addEdge(tabInfo.lastURL, tab.url);
+            }
+           // console.log("%j", tabInfo);
+            tabInfo.lastURL = tab.url;
+
         }
     }
+    if (changeinfo.status === 'complete') {
+        var tabInfo = tabs[tabID];
+        var destNode = tabInfo.graph.getNode(tab.url);
+        if (destNode) {
+            destNode.title = tab.title;
+        }
+        console.log("%j", tabInfo);
 
+
+    }
 
 });
 
