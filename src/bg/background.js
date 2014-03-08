@@ -5,9 +5,16 @@ var Graph = require('data-structures').Graph;
 var current_tab = 0;
 chrome.extension.onMessage.addListener(
     function (request, sender, sendResponse) {
-        chrome.pageAction.show(sender.tab.id);
-        sendResponse();
+
     });
+
+chrome.runtime.onMessage.addListener(function(message,sender,response){
+
+    console.log("Message received");
+    if(message.request === 'getTabInfo'){
+        response(tabs[current_tab]);
+    }
+});
 
 chrome.tabs.onCreated.addListener(function (tab) {
 
