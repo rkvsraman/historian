@@ -2,7 +2,7 @@
     "name": "Pathfinder",
     "version": "0.0.1",
     "manifest_version": 2,
-    "description": "This extension shows a graph path of you browsinf for each tab",
+    "description": "This extension shows a graph path of your browsing for each tab",
     "homepage_url": "http://sites.google.com/site/rkvsraman",
     "icons": {
         "16": "icons/icon16.png",
@@ -14,11 +14,11 @@
         "page": "src/bg/background.html",
         "persistent": true
     },
-    "options_page": "src/options_custom/index.html",
+
     "content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self'",
     "browser_action": {
         "default_icon": "icons/icon19.png",
-        "default_title": "Show browse path",
+        "default_title": "Pathfinder",
         "default_popup": "src/browser_action/browser_action.html"
     },
     "permissions": [
@@ -41,9 +41,7 @@
         "http://*/*",
         "https://*/*"
     ],
-    "omnibox": {
-        "keyword": "extensionizr"
-    },
+
     "content_scripts": [
         {
             "matches": [
