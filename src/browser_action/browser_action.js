@@ -10,6 +10,12 @@ pathfinder.config(['$routeProvider',
             });
 
         $routeProvider.
+            when('/global', {
+                templateUrl: 'partials/global.html',
+                controller: 'GlobalCtrl'
+            });
+
+        $routeProvider.
             otherwise({
                 redirectTo: '/'
             });

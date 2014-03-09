@@ -4,7 +4,7 @@
     <style type="text/css">
         #mainPopup {
             padding: 10px;
-            height: 400px;
+            height: 500px;
             width: 600px;
             font-family: Helvetica, Ubuntu, Arial, sans-serif;
         }
@@ -13,6 +13,10 @@
 </head>
 <body id="mainPopup" ng-controller="SuperCtrl">
 <div class="container">
+    <div class="row">
+        <a class="btn btn-sm btn-info span3 " href="#/">Current Tab</a>
+        <a class="btn btn-sm btn-info span3 col-lg-offset-4" href="#/global">All Tabs</a>
+    </div>
     <div ng-view=""></div>
 
 
@@ -27,5 +31,6 @@
 <script src="browser_action.js"></script>
 <script src="js/SuperCtrl.js"></script>
 <script src="js/WelcomeCtrl.js"></script>
+<script src="js/GlobalCtrl.js"></script>
 </body>
 </html>

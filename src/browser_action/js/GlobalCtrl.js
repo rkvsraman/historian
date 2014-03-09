@@ -1,9 +1,8 @@
 'use strict';
 
-pathfinder.controller('WelcomeCtrl',
+pathfinder.controller('GlobalCtrl',
 
-    function WelcomeCtrl($scope, $location) {
-
+    function GlobalCtrl($scope, $location) {
 
         var Renderer = function (elt) {
             var dom = $(elt)
@@ -40,13 +39,13 @@ pathfinder.controller('WelcomeCtrl',
                 redraw: function () {
                     gfx.clear()
                     sys.eachEdge(function (edge, p1, p2) {
-                        var grd = ctx.createLinearGradient(p1.x, p1.y, p2.x, p2.y);
+                        var grd = ctx.createLinearGradient(p1.x, p1.y,p2.x, p2.y);
                         grd.addColorStop(0, "#FFFF66");
                         grd.addColorStop(1, "#5C001F");
 
                         ctx.beginPath();
-                        ctx.moveTo(p1.x, p1.y);
-                        ctx.lineTo(p2.x, p2.y);
+                        ctx.moveTo(p1.x,p1.y);
+                        ctx.lineTo(p2.x,p2.y);
                         ctx.strokeStyle = grd;
                         ctx.lineWidth = 5
                         ctx.stroke();
@@ -145,9 +144,10 @@ pathfinder.controller('WelcomeCtrl',
 
                             if (nearest && selected && nearest.node === selected.node) {
                                 var link = selected.node.data.link
+                                var tabId = selected.node.data.tabId
 
                                 console.log(link);
-                                setLink(link);
+                                setLink(link,tabId);
                                 //window.location = link
                                 return false
                             }
@@ -223,6 +223,8 @@ pathfinder.controller('WelcomeCtrl',
                 theUI.nodes[i] = {color: CLR.branch, shape: "dot", alpha: 1};
                 theUI.nodes[i].link = properties;
                 theUI.nodes[i].title = nodes[properties].title;
+                theUI.nodes[i].tabId = nodes[properties].tabId;
+
                 i++;
             }
             for (var properties in nodes) {
@@ -242,7 +244,7 @@ pathfinder.controller('WelcomeCtrl',
 
             var sys = arbor.ParticleSystem();
             sys.parameters({stiffness: 900, repulsion: 2000, gravity: true, dt: 0.015})
-            sys.renderer = Renderer("#showgraph");
+            sys.renderer = Renderer("#globalgraph");
             sys.graft(theUI);
         }
 
@@ -255,22 +257,20 @@ pathfinder.controller('WelcomeCtrl',
             return null;
         }
 
-        function setLink(link) {
+        function setLink(link, tabId) {
             chrome.runtime.sendMessage({request: 'openLink',
                 link: link,
-                tabId: $scope.graphData.id}, function (response) {
-
+                tabId: tabId}, function (response) {
                 getGraphData();
             });
         }
 
         function getGraphData() {
-            chrome.runtime.sendMessage({request: 'getTabInfo'}, function (response) {
+            chrome.runtime.sendMessage({request: 'browserGraph'}, function (response) {
 
                 $scope.$apply(function () {
                     $scope.graphData = response;
                     setUpgraph(response);
-
                 });
 
             });
