@@ -32,7 +32,7 @@ pathfinder.controller('WelcomeCtrl',
                 },
                 resize: function () {
                     canvas.width = $(window).width()
-                    canvas.height = .75 * $(window).height()
+                    canvas.height = .60 * $(window).height()
                     sys.screen({size: {width: canvas.width, height: canvas.height}})
                     _vignette = null
                     that.redraw()
@@ -61,12 +61,12 @@ pathfinder.controller('WelcomeCtrl',
 
                         if (node.name === '1') {
 
-                            gfx.oval(pt.x - w / 2, pt.y - w / 2, w, w, {fill: "#000000", alpha: node.data.alpha})
+                            gfx.oval(pt.x - w / 2, pt.y - w / 2, w, w, {fill: "#1947A3", alpha: node.data.alpha})
                         }
                         else if (node.data.link === $scope.graphData.lastURL) {
-                            gfx.oval(pt.x - w / 2, pt.y - w / 2, w, w, {fill: "#3366FF", alpha: node.data.alpha})
+                            gfx.oval(pt.x - w / 2, pt.y - w / 2, w, w, {fill: "#FF6666", alpha: node.data.alpha})
                         } else {
-                            gfx.oval(pt.x - w / 2, pt.y - w / 2, w, w, {fill: "#995C1F", alpha: node.data.alpha})
+                            gfx.oval(pt.x - w / 2, pt.y - w / 2, w, w, {fill: "#FFCC00", alpha: node.data.alpha})
                         }
                         gfx.text(node.name, pt.x, pt.y + 7, {color: "white", align: "center", font: "Arial", size: 12})
                         //  gfx.text(node.name, pt.x, pt.y + 7, {color: "white", align: "center", font: "Arial", size: 12})
@@ -262,8 +262,7 @@ pathfinder.controller('WelcomeCtrl',
             chrome.runtime.sendMessage({request: 'openLink',
                 link: link,
                 tabId: $scope.graphData.id}, function (response) {
-
-                getGraphData();
+                window.close();
             });
         }
 

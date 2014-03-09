@@ -19,9 +19,13 @@ chrome.runtime.onMessage.addListener(function (message, sender, response) {
     }
     if (message.request === 'openLink') {
 
-        chrome.tabs.update(message.tabId, {url: message.link, active: true}, function () {
-            response({success: true});
+        chrome.tabs.update(message.tabId, {url: message.link, active: true}, function (tab) {
+            console.log("Sending response");
+
         });
+
+        response({success: "true"});
+
     }
 
     if (message.request === 'browserGraph') {
@@ -47,7 +51,7 @@ chrome.tabs.onCreated.addListener(function (tab) {
     tabs[tab.id] = tabInfo;
     current_tab = tab.id;
 
-    if (tab.url.indexOf('newtab') != -1) {
+    if (tab.url.indexOf('chrome://newtab') != -1) {
         tabInfo.lastURL ='';
         browserGraph.lastURL = ''
         console.log("Returning");
@@ -83,7 +87,7 @@ chrome.tabs.onUpdated.addListener(function (tabID, changeinfo, tab) {
     if (tab.url.indexOf('chrome-devtools') != -1) {
         return;
     }
-    if (tab.url.indexOf('newtab') != -1) {
+    if (tab.url.indexOf('chrome://newtab') != -1) {
         return;
     }
     console.log("Tab id  " + tabID);
