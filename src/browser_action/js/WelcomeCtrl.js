@@ -45,16 +45,19 @@ pathfinder.controller('WelcomeCtrl',
                     sys.eachEdge(function (edge, p1, p2) {
                         if (edge.source.data.alpha * edge.target.data.alpha == 0) return
                         gfx.line(p1, p2, {stroke: "#b2b19d", width: 2, alpha: edge.target.data.alpha})
+                        gfx.oval(p2.x - 10, p2.y - 5, 10, 10, {fill: "#b2b19d", alpha: 1})
+
                     })
                     sys.eachNode(function (node, pt) {
                         var w = Math.max(20, 20 + gfx.textWidth(node.name))
+                        console.log("Width "+ w);
 
                         gfx.oval(pt.x - w / 2, pt.y - w / 2, w, w, {fill: node.data.color, alpha: node.data.alpha})
                         gfx.text(node.name, pt.x, pt.y + 7, {color: "white", align: "center", font: "Arial", size: 12})
-                        gfx.text(node.name, pt.x, pt.y + 7, {color: "white", align: "center", font: "Arial", size: 12})
+                      //  gfx.text(node.name, pt.x, pt.y + 7, {color: "white", align: "center", font: "Arial", size: 12})
 
                     })
-                    that._drawVignette()
+                    //that._drawVignette()
                 },
 
                 _drawVignette: function () {
@@ -95,6 +98,7 @@ pathfinder.controller('WelcomeCtrl',
 
                     var handler = {
                         moved: function (e) {
+                            //   console.log("Moved");
                             var pos = $(canvas).offset();
                             _mouseP = arbor.Point(e.pageX - pos.left, e.pageY - pos.top)
                             nearest = sys.nearest(_mouseP);
@@ -104,6 +108,12 @@ pathfinder.controller('WelcomeCtrl',
 
                             selected = (nearest.distance < 50) ? nearest : null
                             if (selected) {
+                                //console.log("Found %j", nearest.node);
+                                $scope.$apply(function () {
+                                    $scope.title = nearest.node.data.title;
+                                    $scope.link = nearest.node.data.link;
+                                });
+
                                 dom.addClass('linkable')
                                 //window.status = selected.node.data.link.replace(/^\//, "http://" + window.location.host + "/").replace(/^#/, '')
                             }
@@ -116,6 +126,7 @@ pathfinder.controller('WelcomeCtrl',
                             return false
                         },
                         clicked: function (e) {
+                            console.log("Clicked");
                             var pos = $(canvas).offset();
                             _mouseP = arbor.Point(e.pageX - pos.left, e.pageY - pos.top)
                             nearest = dragged = sys.nearest(_mouseP);
@@ -124,6 +135,7 @@ pathfinder.controller('WelcomeCtrl',
                                 var link = selected.node.data.link
 
                                 console.log(link);
+                                setLink(link);
                                 //window.location = link
                                 return false
                             }
@@ -138,6 +150,7 @@ pathfinder.controller('WelcomeCtrl',
                             return false
                         },
                         dragged: function (e) {
+                            console.log("Dragged");
                             var old_nearest = nearest && nearest.node._id
                             var pos = $(canvas).offset();
                             var s = arbor.Point(e.pageX - pos.left, e.pageY - pos.top)
@@ -152,6 +165,7 @@ pathfinder.controller('WelcomeCtrl',
                         },
 
                         dropped: function (e) {
+                            console.log("Dropped");
                             if (dragged === null || dragged.node === undefined) return
                             if (dragged.node !== null) dragged.node.fixed = false
                             dragged.node.tempMass = 1000
@@ -176,7 +190,6 @@ pathfinder.controller('WelcomeCtrl',
             return that
         }
 
-
         var CLR = {
             branch: "#b2b19d",
             code: "orange",
@@ -184,86 +197,70 @@ pathfinder.controller('WelcomeCtrl',
             demo: "#a7af00"
         }
 
-        var theUI = {
-            nodes: {"arbor.js": {color: "red", shape: "dot", alpha: 1},
-
-                demos: {color: CLR.branch, shape: "dot", alpha: 1},
-                halfviz: {color: CLR.demo, alpha: 1, link: '/halfviz'},
-                atlas: {color: CLR.demo, alpha: 1, link: '/atlas'},
-                echolalia: {color: CLR.demo, alpha: 1, link: '/echolalia'},
-
-                docs: {color: CLR.branch, shape: "dot", alpha: 1},
-                reference: {color: CLR.doc, alpha: 1, link: '#reference'},
-                introduction: {color: CLR.doc, alpha: 1, link: '#introduction'},
-
-                code: {color: CLR.branch, shape: "dot", alpha: 1},
-                github: {color: CLR.code, alpha: 1, link: 'https://github.com/samizdatco/arbor'},
-                ".zip": {color: CLR.code, alpha: 1, link: '/js/dist/arbor-v0.92.zip'},
-                ".tar.gz": {color: CLR.code, alpha: 1, link: '/js/dist/arbor-v0.92.tar.gz'}
-            },
-            edges: {
-                "arbor.js": {
-                    demos: {length: .8},
-                    docs: {length: .8},
-                    code: {length: .8}
-                },
-                demos: {halfviz: {},
-                    atlas: {},
-                    echolalia: {}
-                },
-                docs: {reference: {},
-                    introduction: {}
-                },
-                code: {".zip": {},
-                    ".tar.gz": {},
-                    "github": {}
-                }
-            }
-        }
-
-
-
-
 
         chrome.runtime.sendMessage({request: 'getTabInfo'}, function (response) {
 
-          console.log("%j",response.graph);
-            var graph = response.graph;
+            $scope.$apply(function () {
+                $scope.graphData = response;
+
+            });
+            setUpgraph(response);
+
+        });
+
+
+        function setUpgraph(data) {
+            console.log("%j", data.graph);
+            var graph = data.graph;
             var nodes = graph._nodes;
 
-            theUI = {};
+            var theUI = {};
             theUI.nodes = {};
             theUI.edges = {};
             var i = 1;
-            for(var properties in nodes){
+            for (var properties in nodes) {
                 theUI.nodes[i] = {color: CLR.branch, shape: "dot", alpha: 1};
                 theUI.nodes[i].link = properties;
+                theUI.nodes[i].title = nodes[properties].title;
                 i++;
             }
-            for(var properties in nodes){
+            for (var properties in nodes) {
 
-               var sourceNodeIndex =  findgraphNode(theUI.nodes , properties);
-                if(sourceNodeIndex){
-                      theUI[sourceNodeIndex] = {};
+                var sourceNodeIndex = findgraphNode(theUI.nodes, properties);
+                if (sourceNodeIndex) {
+                    theUI.edges[sourceNodeIndex] = {};
+                    var outEdges = nodes[properties]._outEdges
+                    for (var edges in outEdges) {
+
+                        var edgeIndex = findgraphNode(theUI.nodes, edges);
+                        theUI.edges[sourceNodeIndex][edgeIndex] = {};
+                    }
                 }
 
             }
 
-            var sys = arbor.ParticleSystem()    ;
+            var sys = arbor.ParticleSystem();
             sys.parameters({stiffness: 900, repulsion: 2000, gravity: true, dt: 0.015})
-            sys.renderer = Renderer("#showgraph")  ;
-            sys.graft(theUI)  ;
+            sys.renderer = Renderer("#showgraph");
+            sys.graft(theUI);
+        }
 
-        });
-
-        function findgraphNode(nodes,prop){
-            for(var props in nodes){
-                if(nodes[props].link === prop){
+        function findgraphNode(nodes, prop) {
+            for (var props in nodes) {
+                if (nodes[props].link === prop) {
                     return props;
                 }
             }
             return null;
         }
 
+        function setLink(link) {
+            chrome.runtime.sendMessage({request: 'openLink',
+                link: link,
+                tabId: $scope.graphData.id}, function (response) {
 
-    };
+
+            });
+        }
+
+    });

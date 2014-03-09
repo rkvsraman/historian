@@ -8,24 +8,27 @@ chrome.extension.onMessage.addListener(
 
     });
 
-chrome.runtime.onMessage.addListener(function(message,sender,response){
+chrome.runtime.onMessage.addListener(function (message, sender, response) {
 
-    console.log("Message received");
-    if(message.request === 'getTabInfo'){
-        console.log('%j',tabs[current_tab]) ;
+
+    if (message.request === 'getTabInfo') {
         response(tabs[current_tab]);
 
+    }
+    if (message.request === 'openLink') {
+        chrome.tabs.update(message.tabId, {url: message.link}, function () {
+            response({success: true});
+        });
     }
 });
 
 chrome.tabs.onCreated.addListener(function (tab) {
 
-    if(tab.url.indexOf('chrome-devtools') != -1)
-    {
+    if (tab.url.indexOf('chrome-devtools') != -1) {
         return;
     }
 
-    console.log("Created " + tab.id + " " + tab.url);
+
     var tabInfo = {};
     tabInfo.id = tab.id;
     tabInfo.graph = new Graph();
@@ -34,7 +37,6 @@ chrome.tabs.onCreated.addListener(function (tab) {
     node.title = tab.title;
     tabInfo.lastURL = tab.url;
     tabs[tab.id] = tabInfo;
-   // console.log("%j", tabInfo);
     current_tab = tab.id;
 
 
@@ -42,12 +44,8 @@ chrome.tabs.onCreated.addListener(function (tab) {
 
 chrome.tabs.onUpdated.addListener(function (tabID, changeinfo, tab) {
 
-    /* console.log("Changed " + tabID + " \n" + tab.url + "\n "
-     + changeinfo.url
-     + "\n"
-     + changeinfo.status);*/
-    if(tab.url.indexOf('chrome-devtools') != -1)
-    {
+
+    if (tab.url.indexOf('chrome-devtools') != -1) {
         return;
     }
     if (changeinfo.status === 'loading') {
@@ -64,7 +62,7 @@ chrome.tabs.onUpdated.addListener(function (tabID, changeinfo, tab) {
             if (sourceNode && destNode) {
                 tabInfo.graph.addEdge(tabInfo.lastURL, tab.url);
             }
-           // console.log("%j", tabInfo);
+
             tabInfo.lastURL = tab.url;
 
         }
@@ -75,7 +73,6 @@ chrome.tabs.onUpdated.addListener(function (tabID, changeinfo, tab) {
         if (destNode) {
             destNode.title = tab.title;
         }
-        //console.log("%j", tabInfo);
 
 
     }
