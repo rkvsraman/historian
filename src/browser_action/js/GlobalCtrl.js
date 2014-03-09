@@ -39,13 +39,13 @@ pathfinder.controller('GlobalCtrl',
                 redraw: function () {
                     gfx.clear()
                     sys.eachEdge(function (edge, p1, p2) {
-                        var grd = ctx.createLinearGradient(p1.x, p1.y,p2.x, p2.y);
+                        var grd = ctx.createLinearGradient(p1.x, p1.y, p2.x, p2.y);
                         grd.addColorStop(0, "#FFFF66");
                         grd.addColorStop(1, "#5C001F");
 
                         ctx.beginPath();
-                        ctx.moveTo(p1.x,p1.y);
-                        ctx.lineTo(p2.x,p2.y);
+                        ctx.moveTo(p1.x, p1.y);
+                        ctx.lineTo(p2.x, p2.y);
                         ctx.strokeStyle = grd;
                         ctx.lineWidth = 5
                         ctx.stroke();
@@ -57,9 +57,11 @@ pathfinder.controller('GlobalCtrl',
                     })
                     sys.eachNode(function (node, pt) {
                         var w = Math.max(20, 20 + gfx.textWidth(node.name))
+                        if (node.name === '1') {
 
-
-                        if (node.data.link === $scope.graphData.lastURL) {
+                            gfx.oval(pt.x - w / 2, pt.y - w / 2, w, w, {fill: "#000000", alpha: node.data.alpha})
+                        }
+                        else if (node.data.link === $scope.graphData.lastURL) {
                             gfx.oval(pt.x - w / 2, pt.y - w / 2, w, w, {fill: "#3366FF", alpha: node.data.alpha})
                         } else {
                             gfx.oval(pt.x - w / 2, pt.y - w / 2, w, w, {fill: "#995C1F", alpha: node.data.alpha})
@@ -147,7 +149,7 @@ pathfinder.controller('GlobalCtrl',
                                 var tabId = selected.node.data.tabId
 
                                 console.log(link);
-                                setLink(link,tabId);
+                                setLink(link, tabId);
                                 //window.location = link
                                 return false
                             }

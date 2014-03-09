@@ -59,8 +59,11 @@ pathfinder.controller('WelcomeCtrl',
                     sys.eachNode(function (node, pt) {
                         var w = Math.max(20, 20 + gfx.textWidth(node.name))
 
+                        if (node.name === '1') {
 
-                        if (node.data.link === $scope.graphData.lastURL) {
+                            gfx.oval(pt.x - w / 2, pt.y - w / 2, w, w, {fill: "#000000", alpha: node.data.alpha})
+                        }
+                        else if (node.data.link === $scope.graphData.lastURL) {
                             gfx.oval(pt.x - w / 2, pt.y - w / 2, w, w, {fill: "#3366FF", alpha: node.data.alpha})
                         } else {
                             gfx.oval(pt.x - w / 2, pt.y - w / 2, w, w, {fill: "#995C1F", alpha: node.data.alpha})

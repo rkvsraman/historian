@@ -34,6 +34,7 @@ chrome.tabs.onCreated.addListener(function (tab) {
     if (tab.url.indexOf('chrome-devtools') != -1) {
         return;
     }
+
     if (!browserGraph.graph) {
         browserGraph.graph = new Graph();
         browserGraph.lastURL = '';
@@ -43,14 +44,21 @@ chrome.tabs.onCreated.addListener(function (tab) {
     var tabInfo = {};
     tabInfo.id = tab.id;
     tabInfo.graph = new Graph();
+    tabs[tab.id] = tabInfo;
+    current_tab = tab.id;
 
+    if (tab.url.indexOf('newtab') != -1) {
+        tabInfo.lastURL ='';
+        browserGraph.lastURL = ''
+        console.log("Returning");
+        return;
+    }
     var node = tabInfo.graph.addNode(tab.url);
     node.title = tab.title;
     node.tabId = tab.id;
     node.winId = tab.windowId;
     tabInfo.lastURL = tab.url;
-    tabs[tab.id] = tabInfo;
-    current_tab = tab.id;
+
     console.log(" Browser last URL " + browserGraph.lastURL);
     var gNode = browserGraph.graph.getNode(tab.url);
     if (!gNode) {
@@ -73,6 +81,9 @@ chrome.tabs.onUpdated.addListener(function (tabID, changeinfo, tab) {
 
 
     if (tab.url.indexOf('chrome-devtools') != -1) {
+        return;
+    }
+    if (tab.url.indexOf('newtab') != -1) {
         return;
     }
     console.log("Tab id  " + tabID);
