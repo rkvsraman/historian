@@ -43,18 +43,33 @@ pathfinder.controller('WelcomeCtrl',
                 redraw: function () {
                     gfx.clear()
                     sys.eachEdge(function (edge, p1, p2) {
-                        if (edge.source.data.alpha * edge.target.data.alpha == 0) return
-                        gfx.line(p1, p2, {stroke: "#b2b19d", width: 2, alpha: edge.target.data.alpha})
-                        gfx.oval(p2.x - 10, p2.y - 5, 10, 10, {fill: "#b2b19d", alpha: 1})
+                        var grd = ctx.createLinearGradient(p1.x, p1.y,p2.x, p2.y);
+                        grd.addColorStop(0, "#FFFF66");
+                        grd.addColorStop(1, "#5C001F");
+
+                        ctx.beginPath();
+                        ctx.moveTo(p1.x,p1.y);
+                        ctx.lineTo(p2.x,p2.y);
+                        ctx.strokeStyle = grd;
+                        ctx.lineWidth = 5
+                        ctx.stroke();
+
+                        //gfx.line(p1, p2, {stroke: "#3333CC", width: 5, alpha: 1})
+                       //gfx.line(p1, p2, {stroke: grd, width: 5})
+
 
                     })
                     sys.eachNode(function (node, pt) {
                         var w = Math.max(20, 20 + gfx.textWidth(node.name))
-                        console.log("Width "+ w);
 
-                        gfx.oval(pt.x - w / 2, pt.y - w / 2, w, w, {fill: node.data.color, alpha: node.data.alpha})
+
+                        if (node.data.link === $scope.graphData.lastURL) {
+                            gfx.oval(pt.x - w / 2, pt.y - w / 2, w, w, {fill: "#3366FF", alpha: node.data.alpha})
+                        } else {
+                            gfx.oval(pt.x - w / 2, pt.y - w / 2, w, w, {fill: "#995C1F", alpha: node.data.alpha})
+                        }
                         gfx.text(node.name, pt.x, pt.y + 7, {color: "white", align: "center", font: "Arial", size: 12})
-                      //  gfx.text(node.name, pt.x, pt.y + 7, {color: "white", align: "center", font: "Arial", size: 12})
+                        //  gfx.text(node.name, pt.x, pt.y + 7, {color: "white", align: "center", font: "Arial", size: 12})
 
                     })
                     //that._drawVignette()
@@ -98,7 +113,7 @@ pathfinder.controller('WelcomeCtrl',
 
                     var handler = {
                         moved: function (e) {
-                            //   console.log("Moved");
+
                             var pos = $(canvas).offset();
                             _mouseP = arbor.Point(e.pageX - pos.left, e.pageY - pos.top)
                             nearest = sys.nearest(_mouseP);
@@ -126,7 +141,7 @@ pathfinder.controller('WelcomeCtrl',
                             return false
                         },
                         clicked: function (e) {
-                            console.log("Clicked");
+
                             var pos = $(canvas).offset();
                             _mouseP = arbor.Point(e.pageX - pos.left, e.pageY - pos.top)
                             nearest = dragged = sys.nearest(_mouseP);
@@ -150,7 +165,7 @@ pathfinder.controller('WelcomeCtrl',
                             return false
                         },
                         dragged: function (e) {
-                            console.log("Dragged");
+
                             var old_nearest = nearest && nearest.node._id
                             var pos = $(canvas).offset();
                             var s = arbor.Point(e.pageX - pos.left, e.pageY - pos.top)
@@ -165,7 +180,7 @@ pathfinder.controller('WelcomeCtrl',
                         },
 
                         dropped: function (e) {
-                            console.log("Dropped");
+
                             if (dragged === null || dragged.node === undefined) return
                             if (dragged.node !== null) dragged.node.fixed = false
                             dragged.node.tempMass = 1000
@@ -191,22 +206,11 @@ pathfinder.controller('WelcomeCtrl',
         }
 
         var CLR = {
-            branch: "#b2b19d",
+            branch: "#995C1F",
             code: "orange",
             doc: "#922E00",
             demo: "#a7af00"
         }
-
-
-        chrome.runtime.sendMessage({request: 'getTabInfo'}, function (response) {
-
-            $scope.$apply(function () {
-                $scope.graphData = response;
-
-            });
-            setUpgraph(response);
-
-        });
 
 
         function setUpgraph(data) {
@@ -259,8 +263,21 @@ pathfinder.controller('WelcomeCtrl',
                 link: link,
                 tabId: $scope.graphData.id}, function (response) {
 
-
+                getGraphData();
             });
         }
+
+        function getGraphData() {
+            chrome.runtime.sendMessage({request: 'getTabInfo'}, function (response) {
+
+                $scope.$apply(function () {
+                    $scope.graphData = response;
+
+                });
+                setUpgraph(response);
+            });
+        }
+
+        getGraphData();
 
     });
