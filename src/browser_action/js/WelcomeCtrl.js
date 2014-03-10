@@ -41,7 +41,9 @@ pathfinder.controller('WelcomeCtrl',
                     gfx.clear()
                     sys.eachEdge(function (edge, p1, p2) {
                         var grd = ctx.createLinearGradient(p1.x, p1.y, p2.x, p2.y);
-                        grd.addColorStop(0, "#FFFF66");
+                        grd.addColorStop(0, "#FFCC00");
+                        grd.addColorStop(0.2, "#FFCC00");
+                        grd.addColorStop(0.6, "#5C001F");
                         grd.addColorStop(1, "#5C001F");
 
                         ctx.beginPath();
@@ -60,17 +62,16 @@ pathfinder.controller('WelcomeCtrl',
                         var w = Math.max(20, 20 + gfx.textWidth(node.name))
 
                         if (node.name === '1') {
-
                             gfx.oval(pt.x - w / 2, pt.y - w / 2, w, w, {fill: "#1947A3", alpha: node.data.alpha})
+                            gfx.text(node.name, pt.x, pt.y + 7, {color: "white", align: "center", font: "Arial", size: 12})
                         }
                         else if (node.data.link === $scope.graphData.lastURL) {
                             gfx.oval(pt.x - w / 2, pt.y - w / 2, w, w, {fill: "#FF6666", alpha: node.data.alpha})
+                            gfx.text(node.name, pt.x, pt.y + 7, {color: "black", align: "center", font: "Arial", size: 12})
                         } else {
                             gfx.oval(pt.x - w / 2, pt.y - w / 2, w, w, {fill: "#FFCC00", alpha: node.data.alpha})
+                            gfx.text(node.name, pt.x, pt.y + 7, {color: "black", align: "center", font: "Arial", size: 12})
                         }
-                        gfx.text(node.name, pt.x, pt.y + 7, {color: "white", align: "center", font: "Arial", size: 12})
-                        //  gfx.text(node.name, pt.x, pt.y + 7, {color: "white", align: "center", font: "Arial", size: 12})
-
                     })
                     //that._drawVignette()
                 },
