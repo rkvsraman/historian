@@ -97,6 +97,7 @@ chrome.tabs.onCreated.addListener(function (tab) {
         gNode.title = tab.title;
         gNode.tabId = tab.id;
         gNode.winId = tab.windowId;
+        gNode.closed = false;
         var gSourceNode = browserGraph.graph.getNode(browserGraph.lastURL);
         if (gSourceNode && gNode) {
             browserGraph.graph.addEdge(browserGraph.lastURL, tab.url);
@@ -143,6 +144,7 @@ chrome.tabs.onUpdated.addListener(function (tabID, changeinfo, tab) {
                     gDestNode.title = tab.title;
                     gDestNode.tabId = tab.id;
                     gDestNode.winId = tab.windowId;
+                    gDestNode.closed = false;
                 }
 
 
