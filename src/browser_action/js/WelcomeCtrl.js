@@ -273,6 +273,7 @@ pathfinder.controller('WelcomeCtrl',
                 $scope.$apply(function () {
                     if (response.error) {
                          $scope.title="No information available for this tab";
+
                     }
                     else {
                         $scope.graphData = response;
