@@ -271,8 +271,13 @@ pathfinder.controller('WelcomeCtrl',
             chrome.runtime.sendMessage({request: 'getTabInfo'}, function (response) {
 
                 $scope.$apply(function () {
-                    $scope.graphData = response;
-                    setUpgraph(response);
+                    if (response.error) {
+                         $scope.title="No information available for this tab";
+                    }
+                    else {
+                        $scope.graphData = response;
+                        setUpgraph(response);
+                    }
 
                 });
 

@@ -14,7 +14,13 @@ chrome.runtime.onMessage.addListener(function (message, sender, response) {
 
 
     if (message.request === 'getTabInfo') {
-        response(tabs[current_tab]);
+        var tabInfo = tabs[current_tab];
+        if (tabInfo) {
+            response(tabInfo);
+        }
+        else {
+              response({error:"No tab information"});
+        }
 
     }
     if (message.request === 'openLink') {
@@ -52,7 +58,7 @@ chrome.tabs.onCreated.addListener(function (tab) {
     current_tab = tab.id;
 
     if (tab.url.indexOf('chrome://newtab') != -1) {
-        tabInfo.lastURL ='';
+        tabInfo.lastURL = '';
         browserGraph.lastURL = ''
         console.log("Returning");
         return;
@@ -88,6 +94,7 @@ chrome.tabs.onUpdated.addListener(function (tabID, changeinfo, tab) {
         return;
     }
     if (tab.url.indexOf('chrome://newtab') != -1) {
+        browserGraph.lastURL = ''
         return;
     }
     console.log("Tab id  " + tabID);
@@ -95,50 +102,54 @@ chrome.tabs.onUpdated.addListener(function (tabID, changeinfo, tab) {
     console.log("Browser %j", browserGraph);
     if (changeinfo.status === 'loading') {
         var tabInfo = tabs[tabID];
-        if (tabInfo.lastURL != tab.url) {
+        if (tabInfo) {
+            if (tabInfo.lastURL != tab.url) {
 
-            var sourceNode = tabInfo.graph.getNode(tabInfo.lastURL);
-            var destNode = tabInfo.graph.getNode(tab.url);
-            var gSourceNode = browserGraph.graph.getNode(browserGraph.lastURL);
-            var gDestNode = browserGraph.graph.getNode(tab.url);
+                var sourceNode = tabInfo.graph.getNode(tabInfo.lastURL);
+                var destNode = tabInfo.graph.getNode(tab.url);
+                var gSourceNode = browserGraph.graph.getNode(browserGraph.lastURL);
+                var gDestNode = browserGraph.graph.getNode(tab.url);
 
-            if (!destNode) {
-                destNode = tabInfo.graph.addNode(tab.url);
-                destNode.title = tab.title;
-                destNode.tabId = tab.id;
-                destNode.winId = tab.windowId;
+                if (!destNode) {
+                    destNode = tabInfo.graph.addNode(tab.url);
+                    destNode.title = tab.title;
+                    destNode.tabId = tab.id;
+                    destNode.winId = tab.windowId;
+                }
+
+                if (!gDestNode) {
+                    gDestNode = browserGraph.graph.addNode(tab.url);
+                    gDestNode.title = tab.title;
+                    gDestNode.tabId = tab.id;
+                    gDestNode.winId = tab.windowId;
+                }
+
+
+                if (sourceNode && destNode) {
+                    tabInfo.graph.addEdge(tabInfo.lastURL, tab.url);
+                }
+
+                if (gSourceNode && gDestNode) {
+                    browserGraph.graph.addEdge(browserGraph.lastURL, tab.url);
+                }
+
+                tabInfo.lastURL = tab.url;
+                browserGraph.lastURL = tab.url;
+
             }
-
-            if (!gDestNode) {
-                gDestNode = browserGraph.graph.addNode(tab.url);
-                gDestNode.title = tab.title;
-                gDestNode.tabId = tab.id;
-                gDestNode.winId = tab.windowId;
-            }
-
-
-            if (sourceNode && destNode) {
-                tabInfo.graph.addEdge(tabInfo.lastURL, tab.url);
-            }
-
-            if (gSourceNode && gDestNode) {
-                browserGraph.graph.addEdge(browserGraph.lastURL, tab.url);
-            }
-
-            tabInfo.lastURL = tab.url;
-            browserGraph.lastURL = tab.url;
-
         }
     }
     if (changeinfo.status === 'complete') {
         var tabInfo = tabs[tabID];
-        var destNode = tabInfo.graph.getNode(tab.url);
-        var gDestNode = browserGraph.graph.getNode(tab.url);
-        if (destNode) {
-            destNode.title = tab.title;
-        }
-        if (gDestNode) {
-            gDestNode.title = tab.title;
+        if (tabInfo) {
+            var destNode = tabInfo.graph.getNode(tab.url);
+            var gDestNode = browserGraph.graph.getNode(tab.url);
+            if (destNode) {
+                destNode.title = tab.title;
+            }
+            if (gDestNode) {
+                gDestNode.title = tab.title;
+            }
         }
     }
 
