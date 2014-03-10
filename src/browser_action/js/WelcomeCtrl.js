@@ -4,6 +4,7 @@ pathfinder.controller('WelcomeCtrl',
 
     function WelcomeCtrl($scope, $location) {
 
+        $scope.onceRendered = false;
 
         var Renderer = function (elt) {
             var dom = $(elt)
@@ -38,6 +39,9 @@ pathfinder.controller('WelcomeCtrl',
                     that.redraw()
                 },
                 redraw: function () {
+                    if($scope.graphData.graph.nodeSize == 1 && $scope.onceRendered) {
+                        return
+                    }
                     gfx.clear()
                     sys.eachEdge(function (edge, p1, p2) {
                         var grd = ctx.createLinearGradient(p1.x, p1.y, p2.x, p2.y);
@@ -73,6 +77,12 @@ pathfinder.controller('WelcomeCtrl',
                             gfx.text(node.name, pt.x, pt.y + 7, {color: "black", align: "center", font: "Arial", size: 12})
                         }
                     })
+
+                    if(!$scope.onceRendered){
+                        $scope.$apply(function(){
+                            $scope.onceRendered = true;
+                        });
+                    }
                     //that._drawVignette()
                 },
 
