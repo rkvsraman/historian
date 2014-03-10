@@ -2,6 +2,7 @@ var tabs = {};
 var browserGraph = {};
 
 var current_tab = 0;
+var zoomlevel = 1;
 var Graph = require('data-structures').Graph;
 
 
@@ -37,6 +38,16 @@ chrome.runtime.onMessage.addListener(function (message, sender, response) {
     if (message.request === 'browserGraph') {
         response(browserGraph);
     }
+
+    if (message.request === 'setZoomLevel') {
+       zoomlevel = message.zoomlevel;
+        response({success:"true"});
+    }
+    if (message.request === 'getZoomLevel') {
+
+        response({zoomlevel:zoomlevel});
+    }
+
 });
 
 chrome.tabs.onCreated.addListener(function (tab) {

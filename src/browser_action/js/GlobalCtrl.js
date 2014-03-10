@@ -6,20 +6,32 @@ pathfinder.controller('GlobalCtrl',
 
         $scope.zoomval = 1;
 
-        $scope.zoomin = function(){
+       /* chrome.runtime.sendMessage({request: 'getZoomLevel'}, function (response) {
+
+            $scope.$apply(function () {
+                $scope.zoomval = response.zoomlevel;
+            });
+
+        });*/
+
+        $scope.zoomin = function () {
             $scope.zoomval++;
+            setUpgraph($scope.graphData);
         }
 
-        $scope.zoomout = function(){
-            if($scope.zoomval>1)
-            $scope.zoomval--;
+        $scope.zoomout = function () {
+            if ($scope.zoomval > 1) {
+                $scope.zoomval--;
+                setUpgraph($scope.graphData);
+            }
+
         }
 
         var Renderer = function (elt) {
             var dom = $(elt)
             var canvas = dom.get(0)
             var ctx = canvas.getContext("2d");
-           // ctx.scale($scope.zoomval,$scope.zoomval);
+
             var gfx = arbor.Graphics(canvas)
             var sys = null
 
@@ -45,6 +57,7 @@ pathfinder.controller('GlobalCtrl',
                     canvas.width = $(window).width()
                     canvas.height = .60 * $(window).height()
                     sys.screen({size: {width: canvas.width, height: canvas.height}})
+                    ctx.scale($scope.zoomval,$scope.zoomval);
                     _vignette = null
                     that.redraw()
                 },
@@ -85,34 +98,10 @@ pathfinder.controller('GlobalCtrl',
                         }
 
                     })
-                    //that._drawVignette()
+
                 },
 
-                _drawVignette: function () {
-                    var w = canvas.width
-                    var h = canvas.height
-                    var r = 20
 
-                    if (!_vignette) {
-                        var top = ctx.createLinearGradient(0, 0, 0, r)
-                        top.addColorStop(0, "#e0e0e0")
-                        top.addColorStop(.7, "rgba(255,255,255,0)")
-
-                        var bot = ctx.createLinearGradient(0, h - r, 0, h)
-                        bot.addColorStop(0, "rgba(255,255,255,0)")
-                        bot.addColorStop(1, "white")
-
-                        _vignette = {top: top, bot: bot}
-                    }
-
-                    // top
-                    ctx.fillStyle = _vignette.top
-                    ctx.fillRect(0, 0, w, r)
-
-                    // bot
-                    ctx.fillStyle = _vignette.bot
-                    ctx.fillRect(0, h - r, w, r)
-                },
 
 
                 _initMouseHandling: function () {
@@ -134,7 +123,7 @@ pathfinder.controller('GlobalCtrl',
                             if (!nearest.node) return false
 
 
-                            selected = (nearest.distance < 50) ? nearest : null
+                            selected = (nearest.distance < 20) ? nearest : null
                             if (selected) {
                                 //console.log("Found %j", nearest.node);
                                 $scope.$apply(function () {
