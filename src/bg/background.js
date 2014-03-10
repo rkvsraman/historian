@@ -211,6 +211,13 @@ chrome.tabs.onRemoved.addListener(function (tabId, removeInfo) {
     var tabInfo = tabs[tabId];
     if (tabInfo) {
         tabInfo.closed = true;
+        tabInfo.graph.forEachNode(function(nodeObject, nodeid){
+            var closedNode = browserGraph.graph.getNode(nodeid);
+            if(closedNode){
+                closedNode.closed = true;
+            }
+
+        }) ;
     }
 
 });

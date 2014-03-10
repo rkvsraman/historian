@@ -6,13 +6,13 @@ pathfinder.controller('GlobalCtrl',
 
         $scope.zoomval = 1;
 
-       /* chrome.runtime.sendMessage({request: 'getZoomLevel'}, function (response) {
+        /* chrome.runtime.sendMessage({request: 'getZoomLevel'}, function (response) {
 
-            $scope.$apply(function () {
-                $scope.zoomval = response.zoomlevel;
-            });
+         $scope.$apply(function () {
+         $scope.zoomval = response.zoomlevel;
+         });
 
-        });*/
+         });*/
 
         $scope.zoomin = function () {
             $scope.zoomval++;
@@ -57,7 +57,7 @@ pathfinder.controller('GlobalCtrl',
                     canvas.width = $(window).width()
                     canvas.height = .60 * $(window).height()
                     sys.screen({size: {width: canvas.width, height: canvas.height}})
-                    ctx.scale($scope.zoomval,$scope.zoomval);
+                    ctx.scale($scope.zoomval, $scope.zoomval);
                     _vignette = null
                     that.redraw()
                 },
@@ -100,8 +100,6 @@ pathfinder.controller('GlobalCtrl',
                     })
 
                 },
-
-
 
 
                 _initMouseHandling: function () {
@@ -226,15 +224,21 @@ pathfinder.controller('GlobalCtrl',
             theUI.edges = {};
             var i = 1;
             for (var properties in nodes) {
+                if (nodes[properties].closed) {
+                    continue;
+                }
                 theUI.nodes[i] = {color: CLR.branch, shape: "dot", alpha: 1};
                 theUI.nodes[i].link = properties;
                 theUI.nodes[i].title = nodes[properties].title;
                 theUI.nodes[i].tabId = nodes[properties].tabId;
-
                 i++;
+
             }
             for (var properties in nodes) {
 
+                if (nodes[properties].closed) {
+                    continue;
+                }
                 var sourceNodeIndex = findgraphNode(theUI.nodes, properties);
                 if (sourceNodeIndex) {
                     theUI.edges[sourceNodeIndex] = {};
@@ -242,7 +246,9 @@ pathfinder.controller('GlobalCtrl',
                     for (var edges in outEdges) {
 
                         var edgeIndex = findgraphNode(theUI.nodes, edges);
-                        theUI.edges[sourceNodeIndex][edgeIndex] = {};
+                        if (edgeIndex) {
+                            theUI.edges[sourceNodeIndex][edgeIndex] = {};
+                        }
                     }
                 }
 
