@@ -6,10 +6,10 @@ var zoomlevel = 1;
 var Graph = require('data-structures').Graph;
 
 
-chrome.extension.onMessage.addListener(
+/*chrome.extension.onMessage.addListener(
     function (request, sender, sendResponse) {
 
-    });
+    });  */
 
 chrome.runtime.onMessage.addListener(function (message, sender, response) {
 
@@ -20,7 +20,7 @@ chrome.runtime.onMessage.addListener(function (message, sender, response) {
             response(tabInfo);
         }
         else {
-              response({error:"No tab information"});
+            response({error: "No tab information"});
         }
 
     }
@@ -40,13 +40,23 @@ chrome.runtime.onMessage.addListener(function (message, sender, response) {
     }
 
     if (message.request === 'setZoomLevel') {
-       zoomlevel = message.zoomlevel;
-        response({success:"true"});
+        zoomlevel = message.zoomlevel;
+        response({success: "true"});
     }
     if (message.request === 'getZoomLevel') {
 
-        response({zoomlevel:zoomlevel});
+        response({zoomlevel: zoomlevel});
     }
+    if (message.request === 'getAllTabs') {
+
+        response(tabs);
+    }
+
+    if (message.request === 'createSession') {
+
+        response(tabs);
+    }
+
 
 });
 
@@ -193,4 +203,14 @@ chrome.tabs.onAttached.addListener(function (tabId, attachInfo) {
         console.log("Attached " + tabId + " " + tabs[current_tab].lastURL);
         browserGraph.lastURL = tabs[current_tab].lastURL;
     }
+});
+
+chrome.tabs.onRemoved.addListener(function (tabId, removeInfo) {
+
+
+    var tabInfo = tabs[tabId];
+    if (tabInfo) {
+        tabInfo.closed = true;
+    }
+
 });
