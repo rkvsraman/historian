@@ -4,10 +4,22 @@ pathfinder.controller('GlobalCtrl',
 
     function GlobalCtrl($scope, $location) {
 
+        $scope.zoomval = 1;
+
+        $scope.zoomin = function(){
+            $scope.zoomval++;
+        }
+
+        $scope.zoomout = function(){
+            if($scope.zoomval>1)
+            $scope.zoomval--;
+        }
+
         var Renderer = function (elt) {
             var dom = $(elt)
             var canvas = dom.get(0)
             var ctx = canvas.getContext("2d");
+           // ctx.scale($scope.zoomval,$scope.zoomval);
             var gfx = arbor.Graphics(canvas)
             var sys = null
 
@@ -38,6 +50,7 @@ pathfinder.controller('GlobalCtrl',
                 },
                 redraw: function () {
                     gfx.clear()
+
                     sys.eachEdge(function (edge, p1, p2) {
                         var grd = ctx.createLinearGradient(p1.x, p1.y, p2.x, p2.y);
                         grd.addColorStop(0, "#FFCC00");
