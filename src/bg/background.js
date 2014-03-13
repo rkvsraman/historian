@@ -1,15 +1,9 @@
 var tabs = {};
 var browserGraph = {};
-
 var current_tab = 0;
 var zoomlevel = 1;
 var Graph = require('data-structures').Graph;
 
-
-/*chrome.extension.onMessage.addListener(
- function (request, sender, sendResponse) {
-
- });  */
 
 chrome.runtime.onMessage.addListener(function (message, sender, response) {
 
@@ -18,6 +12,8 @@ chrome.runtime.onMessage.addListener(function (message, sender, response) {
     if (message.request === 'getTabInfo') {
         var tabInfo = tabs[current_tab];
         if (tabInfo) {
+            console.log("Sending tab info for id:" + current_tab);
+            console.log("%j", tabInfo);
             response(tabInfo);
         }
         else {
@@ -28,7 +24,6 @@ chrome.runtime.onMessage.addListener(function (message, sender, response) {
     if (message.request === 'openLink') {
 
         chrome.tabs.update(message.tabId, {url: message.link, active: true}, function (tab) {
-            console.log("Sending response");
 
         });
 
@@ -37,6 +32,7 @@ chrome.runtime.onMessage.addListener(function (message, sender, response) {
     }
 
     if (message.request === 'browserGraph') {
+        console.log("Send Browsergraph %j", browserGraph);
         response(browserGraph);
     }
 
@@ -64,7 +60,6 @@ chrome.runtime.onMessage.addListener(function (message, sender, response) {
 chrome.tabs.onCreated.addListener(function (tab) {
 
     console.log("Now:" + new Date());
-
     var tabUrl = tab.url;
 
     if (tabUrl.indexOf('chrome-devtools') != -1) {
@@ -86,7 +81,6 @@ chrome.tabs.onCreated.addListener(function (tab) {
     tabInfo.id = tab.id;
     tabInfo.graph = new Graph();
     tabs[tab.id] = tabInfo;
-    current_tab = tab.id;
     tabInfo.lastURL = 'emptyurl';
     if (!tab.url) {
         console.log("Found empty url... returning");
@@ -100,7 +94,7 @@ chrome.tabs.onCreated.addListener(function (tab) {
     node.winId = tab.windowId;
     tabInfo.lastURL = tabUrl;
 
-    console.log(" Browser last URL " + browserGraph.lastURL);
+
     var gNode = browserGraph.graph.getNode(tabUrl);
     if (!gNode) {
         gNode = browserGraph.graph.addNode(tabUrl);
@@ -108,12 +102,19 @@ chrome.tabs.onCreated.addListener(function (tab) {
         gNode.tabId = tab.id;
         gNode.winId = tab.windowId;
         gNode.closed = false;
-        var gSourceNode = browserGraph.graph.getNode(browserGraph.lastURL);
-        if (gSourceNode && gNode && tabUrl.indexOf("chrome://newtab") == -1) {
-            browserGraph.graph.addEdge(browserGraph.lastURL, tabUrl);
-        }
+        gNode.inTabs = 1;
+
 
     }
+    else {
+        gNode.inTabs = gNode.inTabs + 1;
+    }
+
+    var gSourceNode = browserGraph.graph.getNode(browserGraph.lastURL);
+    if (gSourceNode && gNode && tabUrl.indexOf("chrome://newtab") == -1) {
+        browserGraph.graph.addEdge(browserGraph.lastURL, tabUrl);
+    }
+
     browserGraph.lastURL = tabUrl;
 
 
@@ -162,6 +163,10 @@ chrome.tabs.onUpdated.addListener(function (tabID, changeinfo, tab) {
                     gDestNode.tabId = tab.id;
                     gDestNode.winId = tab.windowId;
                     gDestNode.closed = false;
+                    gDestNode.inTabs = 1;
+                }
+                else {
+                    gDestNode.inTabs = gDestNode.inTabs + 1;
                 }
 
 
@@ -246,8 +251,11 @@ chrome.tabs.onRemoved.addListener(function (tabId, removeInfo) {
         tabInfo.closed = true;
         tabInfo.graph.forEachNode(function (nodeObject, nodeid) {
             var closedNode = browserGraph.graph.getNode(nodeid);
-            if (closedNode) {
-                closedNode.closed = true;
+            if (closedNode.inTabs > 1) {
+                closedNode.inTabs = closedNode.inTabs - 1;
+            }
+            else {
+                browserGraph.graph.removeNode(nodeid);
             }
 
         });
