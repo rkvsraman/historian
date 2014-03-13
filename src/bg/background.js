@@ -62,7 +62,8 @@ chrome.runtime.onMessage.addListener(function (message, sender, response) {
 
 chrome.tabs.onCreated.addListener(function (tab) {
 
-    if (tab.url.indexOf('chrome-devtools') != -1) {
+    var tabUrl = tab.url;
+    if (tabUrl.indexOf('chrome-devtools') != -1) {
         return;
     }
 
@@ -72,39 +73,37 @@ chrome.tabs.onCreated.addListener(function (tab) {
     }
 
 
+
     var tabInfo = {};
     tabInfo.id = tab.id;
     tabInfo.graph = new Graph();
     tabs[tab.id] = tabInfo;
     current_tab = tab.id;
 
-    if (tab.url.indexOf('chrome://newtab') != -1) {
-        tabInfo.lastURL = '';
-        browserGraph.lastURL = ''
-        console.log("Returning");
-        return;
+    if (tabUrl.indexOf('chrome://newtab') != -1) {
+        tabUrl = tabUrl + " " + tab.id;
     }
-    var node = tabInfo.graph.addNode(tab.url);
+    var node = tabInfo.graph.addNode(tabUrl);
     node.title = tab.title;
     node.tabId = tab.id;
     node.winId = tab.windowId;
-    tabInfo.lastURL = tab.url;
+    tabInfo.lastURL = tabUrl;
 
     console.log(" Browser last URL " + browserGraph.lastURL);
-    var gNode = browserGraph.graph.getNode(tab.url);
+    var gNode = browserGraph.graph.getNode(tabUrl);
     if (!gNode) {
-        gNode = browserGraph.graph.addNode(tab.url);
+        gNode = browserGraph.graph.addNode(tabUrl);
         gNode.title = tab.title;
         gNode.tabId = tab.id;
         gNode.winId = tab.windowId;
         gNode.closed = false;
         var gSourceNode = browserGraph.graph.getNode(browserGraph.lastURL);
-        if (gSourceNode && gNode) {
-            browserGraph.graph.addEdge(browserGraph.lastURL, tab.url);
+        if (gSourceNode && gNode && tabUrl.indexOf("chrome://newtab") == -1) {
+            browserGraph.graph.addEdge(browserGraph.lastURL, tabUrl);
         }
 
     }
-    browserGraph.lastURL = tab.url;
+    browserGraph.lastURL = tabUrl;
 
 
 });
@@ -112,12 +111,13 @@ chrome.tabs.onCreated.addListener(function (tab) {
 chrome.tabs.onUpdated.addListener(function (tabID, changeinfo, tab) {
 
 
-    if (tab.url.indexOf('chrome-devtools') != -1) {
+    var tabUrl = tab.url;
+
+    if (tabUrl.indexOf('chrome-devtools') != -1) {
         return;
     }
-    if (tab.url.indexOf('chrome://newtab') != -1) {
-        browserGraph.lastURL = ''
-        return;
+    if (tabUrl.indexOf('chrome://newtab') != -1) {
+        tabUrl = tabUrl + " " + tab.id;
     }
     console.log("Tab id  " + tabID);
     console.log("Tabs %j", tabs);
@@ -125,22 +125,22 @@ chrome.tabs.onUpdated.addListener(function (tabID, changeinfo, tab) {
     if (changeinfo.status === 'loading') {
         var tabInfo = tabs[tabID];
         if (tabInfo) {
-            if (tabInfo.lastURL != tab.url) {
+            if (tabInfo.lastURL != tabUrl) {
 
                 var sourceNode = tabInfo.graph.getNode(tabInfo.lastURL);
-                var destNode = tabInfo.graph.getNode(tab.url);
+                var destNode = tabInfo.graph.getNode(tabUrl);
                 var gSourceNode = browserGraph.graph.getNode(browserGraph.lastURL);
-                var gDestNode = browserGraph.graph.getNode(tab.url);
+                var gDestNode = browserGraph.graph.getNode(tabUrl);
 
                 if (!destNode) {
-                    destNode = tabInfo.graph.addNode(tab.url);
+                    destNode = tabInfo.graph.addNode(tabUrl);
                     destNode.title = tab.title;
                     destNode.tabId = tab.id;
                     destNode.winId = tab.windowId;
                 }
 
                 if (!gDestNode) {
-                    gDestNode = browserGraph.graph.addNode(tab.url);
+                    gDestNode = browserGraph.graph.addNode(tabUrl);
                     gDestNode.title = tab.title;
                     gDestNode.tabId = tab.id;
                     gDestNode.winId = tab.windowId;
@@ -149,15 +149,15 @@ chrome.tabs.onUpdated.addListener(function (tabID, changeinfo, tab) {
 
 
                 if (sourceNode && destNode) {
-                    tabInfo.graph.addEdge(tabInfo.lastURL, tab.url);
+                    tabInfo.graph.addEdge(tabInfo.lastURL, tabUrl);
                 }
 
-                if (gSourceNode && gDestNode) {
-                    browserGraph.graph.addEdge(browserGraph.lastURL, tab.url);
+                if (gSourceNode && gDestNode && tabUrl.indexOf("chrome://newtab") == -1) {
+                    browserGraph.graph.addEdge(browserGraph.lastURL, tabUrl);
                 }
 
-                tabInfo.lastURL = tab.url;
-                browserGraph.lastURL = tab.url;
+                tabInfo.lastURL = tabUrl;
+                browserGraph.lastURL = tabUrl;
 
             }
         }
@@ -165,8 +165,8 @@ chrome.tabs.onUpdated.addListener(function (tabID, changeinfo, tab) {
     if (changeinfo.status === 'complete') {
         var tabInfo = tabs[tabID];
         if (tabInfo) {
-            var destNode = tabInfo.graph.getNode(tab.url);
-            var gDestNode = browserGraph.graph.getNode(tab.url);
+            var destNode = tabInfo.graph.getNode(tabUrl);
+            var gDestNode = browserGraph.graph.getNode(tabUrl);
             if (destNode) {
                 destNode.title = tab.title;
             }

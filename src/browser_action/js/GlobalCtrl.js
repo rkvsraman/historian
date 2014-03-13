@@ -5,14 +5,8 @@ pathfinder.controller('GlobalCtrl',
     function GlobalCtrl($scope, $location) {
 
         $scope.zoomval = 1;
+        $scope.onceRendered = false;
 
-        /* chrome.runtime.sendMessage({request: 'getZoomLevel'}, function (response) {
-
-         $scope.$apply(function () {
-         $scope.zoomval = response.zoomlevel;
-         });
-
-         });*/
 
         $scope.zoomin = function () {
             $scope.zoomval++;
@@ -62,6 +56,9 @@ pathfinder.controller('GlobalCtrl',
                     that.redraw()
                 },
                 redraw: function () {
+                    if ($scope.graphData.graph.nodeSize == 1 && $scope.onceRendered) {
+                        return
+                    }
                     gfx.clear()
 
                     sys.eachEdge(function (edge, p1, p2) {
@@ -85,9 +82,12 @@ pathfinder.controller('GlobalCtrl',
                     })
                     sys.eachNode(function (node, pt) {
                         var w = Math.max(20, 20 + gfx.textWidth(node.name))
-                        if (node.name === '1') {
-                            gfx.oval(pt.x - w / 2, pt.y - w / 2, w, w, {fill: "#1947A3", alpha: node.data.alpha})
-                            gfx.text(node.name, pt.x, pt.y + 7, {color: "white", align: "center", font: "Arial", size: 12})
+
+                        if (node.data.link.indexOf("chrome://newtab") != -1) {
+
+                            gfx.oval(pt.x - w / 2, pt.y - w / 2, w, w, {fill: "#003300", alpha: node.data.alpha})
+                            gfx.text("S", pt.x, pt.y + 7, {color: "white", align: "center", font: "Arial", size: 12})
+
                         }
                         else if (node.data.link === $scope.graphData.lastURL) {
                             gfx.oval(pt.x - w / 2, pt.y - w / 2, w, w, {fill: "#FF6666", alpha: node.data.alpha})
@@ -98,6 +98,11 @@ pathfinder.controller('GlobalCtrl',
                         }
 
                     })
+                    if (!$scope.onceRendered) {
+                        $scope.$apply(function () {
+                            $scope.onceRendered = true;
+                        });
+                    }
 
                 },
 
@@ -124,10 +129,12 @@ pathfinder.controller('GlobalCtrl',
                             selected = (nearest.distance < 20) ? nearest : null
                             if (selected) {
                                 //console.log("Found %j", nearest.node);
-                                $scope.$apply(function () {
-                                    $scope.title = nearest.node.data.title;
-                                    $scope.link = nearest.node.data.link;
-                                });
+                                if (nearest.node.data.link.indexOf("chrome://newtab") == -1) {
+                                    $scope.$apply(function () {
+                                        $scope.title = nearest.node.data.title;
+                                        $scope.link = nearest.node.data.link;
+                                    });
+                                }
 
                                 dom.addClass('linkable')
                                 //window.status = selected.node.data.link.replace(/^\//, "http://" + window.location.host + "/").replace(/^#/, '')
@@ -151,7 +158,9 @@ pathfinder.controller('GlobalCtrl',
                                 var tabId = selected.node.data.tabId
 
                                 console.log(link);
-                                setLink(link, tabId);
+                                if (link.indexOf("chrome://newtab") == -1) {
+                                    setLink(link);
+                                }
                                 //window.location = link
                                 return false
                             }
