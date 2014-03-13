@@ -56,7 +56,7 @@ pathfinder.controller('GlobalCtrl',
                     that.redraw()
                 },
                 redraw: function () {
-                    if ($scope.graphData.graph.nodeSize == 1 && $scope.onceRendered) {
+                    if ($scope.activeNodes == 1 && $scope.onceRendered) {
                         return
                     }
                     gfx.clear()
@@ -228,6 +228,7 @@ pathfinder.controller('GlobalCtrl',
             var graph = data.graph;
             var nodes = graph._nodes;
 
+            var activeNodes = 0;
             var theUI = {};
             theUI.nodes = {};
             theUI.edges = {};
@@ -236,6 +237,7 @@ pathfinder.controller('GlobalCtrl',
                 if (nodes[properties].closed) {
                     continue;
                 }
+                activeNodes++;
                 theUI.nodes[i] = {color: CLR.branch, shape: "dot", alpha: 1};
                 theUI.nodes[i].link = properties;
                 theUI.nodes[i].title = nodes[properties].title;
@@ -262,11 +264,13 @@ pathfinder.controller('GlobalCtrl',
                 }
 
             }
+            $scope.activeNodes = activeNodes;
 
             var sys = arbor.ParticleSystem();
             sys.parameters({stiffness: 900, repulsion: 2000, gravity: true, dt: 0.015})
             sys.renderer = Renderer("#globalgraph");
             sys.graft(theUI);
+
         }
 
         function findgraphNode(nodes, prop) {
