@@ -9,6 +9,7 @@ chrome.runtime.onMessage.addListener(function (message, sender, response) {
 
 
     console.log("Now:" + new Date());
+    console.log("Message %j" , message);
     if (message.request === 'getTabInfo') {
         var tabInfo = tabs[current_tab];
         if (tabInfo) {
@@ -23,9 +24,17 @@ chrome.runtime.onMessage.addListener(function (message, sender, response) {
     }
     if (message.request === 'openLink') {
 
-        chrome.tabs.update(message.tabId, {url: message.link, active: true}, function (tab) {
+        var node = browserGraph.graph.getNode(message.link);
+        console.log("Opening node %j",node);
+        for (var i = 0; i < node.inTabs.length; i++) {
+            if (tabs[node.inTabs[i]] && !tabs[node.inTabs[i]].closed) {
+                  console.log("Opening in tab:"+ node.inTabs[i]);
+                chrome.tabs.update(node.inTabs[i], {url: message.link, active: true}, function (tab) {
 
-        });
+                });
+                break;
+            }
+        }
 
         response({success: "true"});
 
@@ -102,12 +111,15 @@ chrome.tabs.onCreated.addListener(function (tab) {
         gNode.tabId = tab.id;
         gNode.winId = tab.windowId;
         gNode.closed = false;
-        gNode.inTabs = 1;
+        gNode.inTabs = [];
+        gNode.inTabs.push(tab.id);
 
 
     }
     else {
-        gNode.inTabs = gNode.inTabs + 1;
+        if (gNode.inTabs.indexOf(tab.id) == -1) {
+            gNode.inTabs.push(tab.id);
+        }
     }
 
     var gSourceNode = browserGraph.graph.getNode(browserGraph.lastURL);
@@ -163,10 +175,13 @@ chrome.tabs.onUpdated.addListener(function (tabID, changeinfo, tab) {
                     gDestNode.tabId = tab.id;
                     gDestNode.winId = tab.windowId;
                     gDestNode.closed = false;
-                    gDestNode.inTabs = 1;
+                    gDestNode.inTabs = [];
+                    gDestNode.inTabs.push(tab.id);
                 }
                 else {
-                    gDestNode.inTabs = gDestNode.inTabs + 1;
+                    if (gDestNode.inTabs.indexOf(tab.id) == -1) {
+                        gDestNode.inTabs.push(tab.id);
+                    }
                 }
 
 
@@ -251,8 +266,11 @@ chrome.tabs.onRemoved.addListener(function (tabId, removeInfo) {
         tabInfo.closed = true;
         tabInfo.graph.forEachNode(function (nodeObject, nodeid) {
             var closedNode = browserGraph.graph.getNode(nodeid);
-            if (closedNode.inTabs > 1) {
-                closedNode.inTabs = closedNode.inTabs - 1;
+            if (closedNode.inTabs.length > 1) {
+                var index = closedNode.inTabs.indexOf(tabId);
+                if (index > -1) {
+                    closedNode.inTabs.splice(index, 1);
+                }
             }
             else {
                 browserGraph.graph.removeNode(nodeid);
