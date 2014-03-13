@@ -9,7 +9,7 @@ chrome.runtime.onMessage.addListener(function (message, sender, response) {
 
 
     console.log("Now:" + new Date());
-    console.log("Message %j" , message);
+    console.log("Message %j", message);
     if (message.request === 'getTabInfo') {
         var tabInfo = tabs[current_tab];
         if (tabInfo) {
@@ -25,10 +25,10 @@ chrome.runtime.onMessage.addListener(function (message, sender, response) {
     if (message.request === 'openLink') {
 
         var node = browserGraph.graph.getNode(message.link);
-        console.log("Opening node %j",node);
+        console.log("Opening node %j", node);
         for (var i = 0; i < node.inTabs.length; i++) {
             if (tabs[node.inTabs[i]] && !tabs[node.inTabs[i]].closed) {
-                  console.log("Opening in tab:"+ node.inTabs[i]);
+                console.log("Opening in tab:" + node.inTabs[i]);
                 chrome.tabs.update(node.inTabs[i], {url: message.link, active: true}, function (tab) {
 
                 });
