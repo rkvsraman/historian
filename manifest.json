@@ -22,22 +22,8 @@
         "default_popup": "src/browser_action/browser_action.html"
     },
     "permissions": [
-        "bookmarks",
-        "chrome://favicon/",
-        "clipboardRead",
-        "clipboardWrite",
-        "contentSettings",
-        "contextMenus",
-        "cookies",
-        "fileBrowserHandler",
-        "tts",
-        "ttsEngine",
-        "history",
-        "idle",
-        "management",
-        "notifications",
+
         "tabs",
-        "geolocation",
         "http://*/*",
         "https://*/*"
     ],

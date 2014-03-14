@@ -2,6 +2,7 @@ var tabs = {};
 var browserGraph = {};
 var current_tab = 0;
 var zoomlevel = 1;
+var initialTabsLoaded = false;
 var Graph = require('data-structures').Graph;
 
 
@@ -66,8 +67,11 @@ chrome.runtime.onMessage.addListener(function (message, sender, response) {
 
 });
 
-chrome.tabs.onCreated.addListener(function (tab) {
+function createNewTab(tab) {
 
+    if (tabs[tab.id]) {
+        return;
+    }
     console.log("Now:" + new Date());
     var tabUrl = tab.url;
 
@@ -128,6 +132,11 @@ chrome.tabs.onCreated.addListener(function (tab) {
     }
 
     browserGraph.lastURL = tabUrl;
+}
+
+chrome.tabs.onCreated.addListener(function (tab) {
+
+    createNewTab(tab);
 
 
 });
@@ -236,6 +245,7 @@ chrome.tabs.onActivated.addListener(function (activeInfo) {
         browserGraph.lastURL = tabs[current_tab].lastURL;
     }
 });
+
 chrome.tabs.onDetached.addListener(function (tabId, detachInfo) {
 
     console.log("Now:" + new Date());
@@ -283,3 +293,19 @@ chrome.tabs.onRemoved.addListener(function (tabId, removeInfo) {
     }
 
 });
+
+function loadInitialtabs() {
+    if (initialTabsLoaded)
+        return;
+    chrome.tabs.query({}, function (tabs) {
+
+        for (var i = 0; i < tabs.length; i++) {
+
+            createNewTab(tabs[i]);
+        }
+        initialTabsLoaded = true;
+
+    });
+
+}
+loadInitialtabs();
