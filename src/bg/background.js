@@ -289,7 +289,7 @@ chrome.tabs.onRemoved.addListener(function (tabId, removeInfo) {
         });
     }
     else {
-        console.log("Tab was not foung in Tabinfo");
+        console.log("Tab was not found in Tabinfo");
     }
 
 });
