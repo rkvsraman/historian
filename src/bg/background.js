@@ -98,6 +98,14 @@ chrome.runtime.onMessage.addListener(function (message, sender, response) {
         response({status: success});
     }
 
+    if (message.request === 'deleteTab') {
+
+        tabId = message.tabId;
+        closeTab(tabId);
+        delete  tabs[tabId];
+        response({status: success});
+    }
+
 
 });
 
@@ -305,6 +313,11 @@ chrome.tabs.onAttached.addListener(function (tabId, attachInfo) {
 });
 
 chrome.tabs.onRemoved.addListener(function (tabId, removeInfo) {
+
+    closeTab(tabId);
+});
+
+function closeTab(tabId) {
     console.log("Now:" + new Date());
 
     console.log("Closing tab:" + tabId);
@@ -335,8 +348,7 @@ chrome.tabs.onRemoved.addListener(function (tabId, removeInfo) {
     else {
         console.log("Tab was not found in Tabinfo");
     }
-
-});
+}
 
 function loadInitialtabs() {
     if (initialTabsLoaded)

@@ -11,6 +11,7 @@ pathfinder.controller('ClosedCtrl',
             chrome.runtime.sendMessage({request: 'getClosedTabs'}, function (response) {
 
                 $scope.$apply(function () {
+                    $scope.tabs = [];
                     if (response.error) {
                         $scope.notabs = true;
 
@@ -42,6 +43,12 @@ pathfinder.controller('ClosedCtrl',
             chrome.runtime.sendMessage({request: 'reopenTab', tabId: id}, function (response) {
             });
 
+        }
+
+        $scope.deleteTab = function(id){
+            chrome.runtime.sendMessage({request: 'deleteTab', tabId: id}, function (response) {
+                  getClosedTabs();
+            });
         }
 
         getClosedTabs();

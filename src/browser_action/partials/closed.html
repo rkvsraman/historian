@@ -1,16 +1,18 @@
 <div class="container">
     <div class="row closedrow" ng-repeat="tab in tabs">
         <div class="col-xs-1">
-            <span class="btn btn-primary  glyphicon glyphicon-book"></span>
+            <button class="btn btn-lg btn-success" title="Restore tab" ng-click="openTab(tab.id)">
+                <span class="glyphicon glyphicon-folder-open"></span>
+            </button>
         </div>
-        <div class="col-xs-6">
+        <div class="col-xs-6 col-xs-offset-1">
             <div><strong>{{tab.title | limitTo:40}} </strong></div>
             <div><em>{{tab.url | limitTo:80}}</em></div>
             <div>{{tab.totalpages}} page(s)</div>
         </div>
-        <div class="col-xs-3 pull-right">
-            <button class="btn btn-success" ng-click="openTab(tab.id)">
-                <span class="glyphicon glyphicon-folder-open"></span>
+        <div class="col-xs-1 pull-right">
+            <button class="btn btn-lg btn-danger" title="Delete tab" ng-click="deleteTab(tab.id)">
+                <span class="glyphicon glyphicon-trash"></span>
             </button>
         </div>
     </div>

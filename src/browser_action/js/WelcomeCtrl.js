@@ -311,6 +311,12 @@ pathfinder.controller('WelcomeCtrl',
             });
         }
 
+        $scope.showDetails = false;
+        $scope.askDetails = function(){
+
+            $scope.showDetails = true;
+        }
+
         getGraphData();
 
     });
