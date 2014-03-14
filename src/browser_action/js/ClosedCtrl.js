@@ -4,27 +4,40 @@ pathfinder.controller('ClosedCtrl',
 
     function ClosedCtrl($scope, $location) {
 
-        $scope.tabs = [
-            {title: 'Tirasdasd',
-                url: 'http://www.google.com',
-                id: 1,
-                totalpages: 5}   ,
-            {title: 'Tirasdasd',
-                url: 'http://www.google.com',
-                id: 2,
-                totalpages: 5},
-            {title: 'Tirasdasd',
-                url: 'http://www.google.com',
-                id: 3,
-                totalpages: 5},
-            {title: 'Tirasdasd',
-                url: 'http://www.google.com',
-                id: 4,
-                totalpages: 5}
-        ];
+        $scope.tabs = [];
 
-        $scope.openTab = function(id){
-            console.log("Id is "+ id);
+        function getClosedTabs() {
+            chrome.runtime.sendMessage({request: 'getClosedTabs'}, function (response) {
+
+                $scope.$apply(function () {
+                    if (response.error) {
+                        $scope.title = "No information available for this tab";
+
+                    }
+                    else {
+                        for (var i = 0; i < response.length; i++) {
+                            var tab = {};
+                            tab.title = response[i].lastTitle;
+                            tab.url = response[i].lastURL;
+                            tab.id = response[i].id;
+                            tab.totalpages = response[i].graph.nodeSize;
+                            $scope.tabs.push(tab);
+
+                        }
+                    }
+
+                });
+
+            });
         }
+
+
+        $scope.openTab = function (id) {
+            chrome.runtime.sendMessage({request: 'reopenTab',tabId:id}, function (response) {
+            });
+
+        }
+
+        getClosedTabs();
 
     });

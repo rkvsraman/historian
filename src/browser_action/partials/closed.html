@@ -4,8 +4,8 @@
             <span class="btn btn-primary  glyphicon glyphicon-book"></span>
         </div>
         <div class="col-xs-6">
-            <div><strong>{{tab.title}}</strong></div>
-            <div><em>{{tab.url}}</em></div>
+            <div><strong>{{tab.title | limitTo:40}} </strong></div>
+            <div><em>{{tab.url  | limitTo:80}}</em></div>
             <div>{{tab.totalpages}} page(s)</div>
         </div>
         <div class="col-xs-3 pull-right">

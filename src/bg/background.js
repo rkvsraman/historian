@@ -26,17 +26,23 @@ chrome.runtime.onMessage.addListener(function (message, sender, response) {
     if (message.request === 'openLink') {
 
         var node = browserGraph.graph.getNode(message.link);
-        console.log("Opening node %j", node);
-        for (var i = 0; i < node.inTabs.length; i++) {
-            if (tabs[node.inTabs[i]] && !tabs[node.inTabs[i]].closed) {
-                console.log("Opening in tab:" + node.inTabs[i]);
-                chrome.tabs.update(node.inTabs[i], {url: message.link, active: true}, function (tab) {
+        if (node) {
+            console.log("Opening node %j", node);
+            for (var i = 0; i < node.inTabs.length; i++) {
+                if (tabs[node.inTabs[i]] && !tabs[node.inTabs[i]].closed) {
+                    console.log("Opening in tab:" + node.inTabs[i]);
+                    chrome.tabs.update(node.inTabs[i], {url: message.link, active: true}, function (tab) {
 
-                });
-                break;
+                    });
+                    break;
+                }
             }
         }
+        else {
+            chrome.tabs.update(message.tabId, {url: message.link, active: true}, function (tab) {
 
+            });
+        }
         response({success: "true"});
 
     }
@@ -59,9 +65,37 @@ chrome.runtime.onMessage.addListener(function (message, sender, response) {
         response(tabs);
     }
 
-    if (message.request === 'createSession') {
+    if (message.request === 'getClosedTabs') {
 
-        response(tabs);
+        var closedTabs = [];
+        for (var i in tabs) {
+            if (tabs[i].closed)
+                closedTabs.push(tabs[i]);
+
+        }
+        console.log("Closed tabs %j ", closedTabs);
+        response(closedTabs);
+
+    }
+
+    if (message.request === 'reopenTab') {
+
+        tabId = message.tabId;
+
+        if (tabs[tabId].closed) {
+
+            chrome.tabs.create({active: true, url: tabs[tabId].lastURL}, function (tab) {
+                tabs[tab.id] = tabs[tabId];
+                tabs[tab.id].graph.forEachNode(function (nodeObject, nodeid) {
+                    nodeObject.tabId = tab.id;
+                });
+                tabs[tab.id].id = tab.id;
+                tabs[tab.id].closed = false;
+                delete   tabs[tabId];
+            });
+
+        }
+        response({status: success});
     }
 
 
@@ -106,6 +140,7 @@ function createNewTab(tab) {
     node.tabId = tab.id;
     node.winId = tab.windowId;
     tabInfo.lastURL = tabUrl;
+    tabInfo.lastTitle = tab.title;
 
 
     var gNode = browserGraph.graph.getNode(tabUrl);
@@ -203,6 +238,7 @@ chrome.tabs.onUpdated.addListener(function (tabID, changeinfo, tab) {
                 }
 
                 tabInfo.lastURL = tabUrl;
+                tabInfo.lastTitle = tab.title;
                 browserGraph.lastURL = tabUrl;
 
             }
@@ -223,6 +259,7 @@ chrome.tabs.onUpdated.addListener(function (tabID, changeinfo, tab) {
             var gDestNode = browserGraph.graph.getNode(tabUrl);
             if (destNode) {
                 destNode.title = tab.title;
+                tabInfo.lastTitle = tab.title
             }
             if (gDestNode) {
                 gDestNode.title = tab.title;
