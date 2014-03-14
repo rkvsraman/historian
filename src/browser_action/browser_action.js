@@ -16,6 +16,12 @@ pathfinder.config(['$routeProvider',
             });
 
         $routeProvider.
+            when('/closed', {
+                templateUrl: 'partials/closed.html',
+                controller: 'ClosedCtrl'
+            });
+
+        $routeProvider.
             otherwise({
                 redirectTo: '/'
             });

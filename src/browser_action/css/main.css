@@ -1,0 +1,11 @@
+.closedrow{
+    padding: 12px;
+    width: 100%;
+}
+
+#mainPopup {
+    padding: 10px;
+    height: 600px;
+    width: 600px;
+    font-family: Helvetica, Ubuntu, Arial, sans-serif;
+}

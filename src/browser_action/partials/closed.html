@@ -1,0 +1,17 @@
+<div class="container">
+    <div class="row closedrow" ng-repeat="tab in tabs">
+        <div class="col-xs-1">
+            <span class="btn btn-primary  glyphicon glyphicon-book"></span>
+        </div>
+        <div class="col-xs-6">
+            <div><strong>{{tab.title}}</strong></div>
+            <div><em>{{tab.url}}</em></div>
+            <div>{{tab.totalpages}} page(s)</div>
+        </div>
+        <div class="col-xs-3 pull-right">
+            <button class="btn btn-success" ng-click="openTab(tab.id)">
+                <span class="glyphicon glyphicon-folder-open"></span>
+            </button>
+        </div>
+    </div>
+</div>
