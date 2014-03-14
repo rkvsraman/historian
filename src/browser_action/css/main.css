@@ -3,6 +3,11 @@
     width: 100%;
 }
 
+.largepadding{
+    padding: 100px;
+    width: 100%;
+}
+
 #mainPopup {
     padding: 10px;
     height: 600px;

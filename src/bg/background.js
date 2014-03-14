@@ -313,14 +313,21 @@ chrome.tabs.onRemoved.addListener(function (tabId, removeInfo) {
         tabInfo.closed = true;
         tabInfo.graph.forEachNode(function (nodeObject, nodeid) {
             var closedNode = browserGraph.graph.getNode(nodeid);
-            if (closedNode.inTabs.length > 1) {
-                var index = closedNode.inTabs.indexOf(tabId);
-                if (index > -1) {
-                    closedNode.inTabs.splice(index, 1);
+            if (closedNode) {
+                if (closedNode.inTabs) {
+                    if (closedNode.inTabs.length > 1) {
+                        var index = closedNode.inTabs.indexOf(tabId);
+                        if (index > -1) {
+                            closedNode.inTabs.splice(index, 1);
+                        }
+                    }
+                    else {
+                        browserGraph.graph.removeNode(nodeid);
+                    }
                 }
-            }
-            else {
-                browserGraph.graph.removeNode(nodeid);
+                else {
+                    browserGraph.graph.removeNode(nodeid);
+                }
             }
 
         });
