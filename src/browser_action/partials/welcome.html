@@ -1,19 +1,23 @@
 <div class="container">
+    <div class="row closedrow" ng-show="showDetails">
+        <div class="form-group"><input autofocus="true" type="text" ng-model="note" class="form-control" placeholder="Enter a note"></div>
+        <div class="form-group"><input type="text" ng-model="tags" class="form-control"
+                                       placeholder="Add some tags (separated by comma)"></div>
+        <div class="form-group"> <button class="btn btn-primary" title="Save" onclick="saveTab()">Save</button></div>
+
+    </div>
     <div class="row">
         <canvas id="showgraph" width="600" height="400"></canvas>
     </div>
     <div class="row">
         <div class="col-xs-9">
-        <strong>{{title}} </strong>
-        <em>{{link}}</em>
+            <strong>{{title}} </strong>
+            <em>{{link}}</em>
         </div>
         <div class="col-xs-3">
             <button class="btn btn-lg btn-primary" title="Save tab" ng-click="askDetails()">
                 <span class="glyphicon glyphicon-floppy-disk"></button>
         </div>
     </div>
-    <div class="row" ng-show="showDetails">
-        <input type="text" placeholder="Enter a note">
-        <input type="text" placeholder="Add some tags (separated by comma)">
-    </div>
+
 </div>

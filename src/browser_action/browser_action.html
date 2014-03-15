@@ -6,14 +6,19 @@
 
 </head>
 <body id="mainPopup" ng-controller="SuperCtrl">
-<div class="container">
-    <div class="row">
-       <h2 class="span4"><img src="../../icons/icon48.png" class="img-rounded" title="Pathfinder"> Pathfinder</h2>
-        <a class="btn btn-sm btn-info span3 " href="#/">Current</a>
-        <a class="btn btn-sm btn-info span3 " href="#/global">All open</a>
-        <a class="btn btn-sm btn-info span3 " href="#/closed">Closed</a>
-        <a class="btn btn-sm btn-info span3 " href="#/saved">Saved</a>
+<nav class="navbar navbar-fixed-top whitebackground" role="navigation">
+    <div class="container">
+        <div class="row">
+            <h2 class="span4"><img src="../../icons/icon48.png" class="img-rounded" title="Pathfinder"> Pathfinder</h2>
+            <a class="btn btn-sm btn-info span3 " href="#/">Current</a>
+            <a class="btn btn-sm btn-info span3 " href="#/global">All open</a>
+            <a class="btn btn-sm btn-info span3 " href="#/closed">Closed</a>
+            <a class="btn btn-sm btn-info span3 " href="#/saved">Saved</a>
+        </div>
+
     </div>
+</nav>
+<div class="container toppadding">
     <div class="row" ng-view=""></div>
 </div>
 <script src="../../js/jquery/jquery.js"></script>
