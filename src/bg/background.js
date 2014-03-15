@@ -120,6 +120,9 @@ function createNewTab(tab) {
         return;
     }
 
+    tabInfo.firstURL = tabUrl;
+    tabInfo.prevURL = browserGraph.lastURL;
+
 
     var node = tabInfo.graph.addNode(tabUrl);
     node.title = tab.title;
@@ -129,8 +132,9 @@ function createNewTab(tab) {
     tabInfo.lastTitle = tab.title;
 
 
-
-    browserGraph.lastURL = tabUrl;
+    if (tabUrl.indexOf('chrome://newtab') != -1) {
+        browserGraph.lastURL = tabUrl;
+    }
 }
 
 function buildBrowserGraph() {
@@ -145,7 +149,7 @@ function buildBrowserGraph() {
                 if (!thisNode) {
                     thisNode = browserGraph.graph.addNode(nodeid);
                     thisNode.title = nodeObject.title;
-                    thisNode.tabId = thisTab.tabId;
+                    thisNode.tabId = thisTab.id;
                     thisNode.winId = thisTab.winId;
                 }
             });
@@ -162,6 +166,25 @@ function buildBrowserGraph() {
                         browserGraph.graph.addEdge(nodeid, outNode);
                 }
             });
+        }
+    }
+
+    for (var tab in tabs) {
+        if (!tabs[tab].closed) {
+            if (tabs[tab].prevURL && tabs[tab].firstURL) {
+                var fURL = tabs[tab].prevURL;
+                var lURL = tabs[tab].firstURL;
+                var fNode = browserGraph.graph.getNode(fURL);
+                var lNode = browserGraph.graph.getNode(lURL);
+
+                if (fNode && lNode &&
+                    fURL.indexOf("chrome://newtab") == -1 &&
+                    lURL.indexOf("chrome://newtab") == -1 ) {
+                    browserGraph.graph.addEdge(fURL,lURL);
+
+                }
+
+            }
         }
     }
 

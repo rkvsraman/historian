@@ -159,7 +159,7 @@ pathfinder.controller('GlobalCtrl',
 
                                 console.log(link);
                                 if (link.indexOf("chrome://newtab") == -1) {
-                                    setLink(link);
+                                    setLink(link,tabId);
                                 }
                                 //window.location = link
                                 return false
