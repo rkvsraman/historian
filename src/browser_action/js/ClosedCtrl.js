@@ -47,6 +47,8 @@ pathfinder.controller('ClosedCtrl',
 
         $scope.deleteTab = function(id){
             chrome.runtime.sendMessage({request: 'deleteTab', tabId: id}, function (response) {
+
+                  console.log("deleteTab succeeded")
                   getClosedTabs();
             });
         }
