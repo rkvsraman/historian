@@ -372,7 +372,7 @@ function openDB() {
     db = openDatabase('pathfinder_db', '1.0', 'Pathfinder DB', 10 * 1024 * 1024);
     function populateDB(tx) {
         tx.executeSql('drop table  pathfinder');
-        tx.executeSql('CREATE TABLE IF NOT EXISTS pathfinder (id auto_increment,graphData,note,tags)');
+        tx.executeSql('CREATE TABLE IF NOT EXISTS pathfinder (id INTEGER PRIMARY KEY AUTOINCREMENT,graphData,note,tags)');
     }
 
     db.transaction(populateDB, function (tx, err) {

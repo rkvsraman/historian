@@ -22,6 +22,12 @@ pathfinder.config(['$routeProvider',
             });
 
         $routeProvider.
+            when('/saved', {
+                templateUrl: 'partials/saved.html',
+                controller: 'SavedCtrl'
+            });
+
+        $routeProvider.
             otherwise({
                 redirectTo: '/'
             });
