@@ -5,7 +5,7 @@ pathfinder.controller('ClosedCtrl',
     function ClosedCtrl($scope, $location) {
 
         $scope.tabs = [];
-        $scope.notabs = false;
+        $scope.no_tabs = false;
 
         function getClosedTabs() {
             chrome.runtime.sendMessage({request: 'getClosedTabs'}, function (response) {
@@ -13,7 +13,7 @@ pathfinder.controller('ClosedCtrl',
                 $scope.$apply(function () {
                     $scope.tabs = [];
                     if (response.error) {
-                        $scope.notabs = true;
+                        $scope.no_tabs = true;
 
                     }
                     else {
@@ -29,7 +29,7 @@ pathfinder.controller('ClosedCtrl',
                             }
                         }
                         else {
-                            $scope.notabs = true;
+                            $scope.no_tabs = true;
                         }
                     }
 

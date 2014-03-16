@@ -98,17 +98,58 @@ chrome.runtime.onMessage.addListener(function (message, sender, response) {
         response({success: true});
     }
 
+    if (message.request === 'getSavedTabs') {
+
+        getSavedTabs(response);
+    }
+
+    if(message.request === 'openSavedTab'){
+
+        var id = message.id ;
+
+        openSavedTab(id);
+    }
+
+
 
 });
+
+
+function openSavedTab(id){
+    function populateDB(tx) {
+        tx.executeSql('SELECT  graphData FROM pathfinder where id=?', [id], function (tx, results) {
+
+
+            if(result.rows.length == 1){
+
+                var resInfo = results.rows.item(0).graphData;
+
+
+            }
+        }
+
+            chrome.runtime.sendMessage({request: 'savedTabresults', results: qResults},
+                function (response) {
+                });
+
+            console.log("Returned results");
+            return false;
+        }, function (err) {
+            console.log("Error %j", err);
+            return false;
+        });
+
+}
 
 function saveTab(tabId, note, tags) {
 
     if (tabs[tabId]) {
 
         function populateDB(tx) {
-            tx.executeSql('INSERT INTO pathfinder (graphData, note,tags) ' +
-                'VALUES (?,?,?)',[ tabs[tabId].graph, note ,tags]);
+            tx.executeSql('INSERT INTO pathfinder (graphData, note,tags) VALUES (?,?,?)',
+                [ tabs[tabId].graph, note , tags]);
         }
+
         db.transaction(populateDB, function (tx, err) {
             console.log("%j %j", tx, err);
         }, function () {
@@ -116,6 +157,43 @@ function saveTab(tabId, note, tags) {
         });
 
     }
+}
+
+function getSavedTabs(response) {
+
+
+    function populateDB(tx) {
+        tx.executeSql('SELECT  id,note,tags FROM pathfinder', [], function (tx, results) {
+
+            var qResults = [];
+            for (var i = 0; i < results.rows.length; i++) {
+                var resultitem = {};
+                resultitem.id = results.rows.item(i).id;
+                resultitem.note = results.rows.item(i).note;
+                resultitem.tags = results.rows.item(i).tags;
+                qResults.push(resultitem);
+            }
+
+            chrome.runtime.sendMessage({request: 'savedTabresults', results: qResults},
+                function (response) {
+                });
+
+            console.log("Returned results");
+            return false;
+        }, function (err) {
+            console.log("Error %j", err);
+            return false;
+        });
+    }
+
+    db.transaction(populateDB, function (tx, err) {
+        console.log("%j %j", tx, err);
+        return false;
+    }, function () {
+        console.log("Rows returned");
+        return false;
+    });
+
 }
 
 function createNewTab(tab) {
@@ -367,11 +445,13 @@ function setLastUrl(message, tabId) {
         browserGraph.lastURL = tabs[current_tab].lastURL;
     }
 }
+
+
 function openDB() {
 
     db = openDatabase('pathfinder_db', '1.0', 'Pathfinder DB', 10 * 1024 * 1024);
     function populateDB(tx) {
-        tx.executeSql('drop table  pathfinder');
+        tx.executeSql('DROP TABLE  pathfinder');
         tx.executeSql('CREATE TABLE IF NOT EXISTS pathfinder (id INTEGER PRIMARY KEY AUTOINCREMENT,graphData,note,tags)');
     }
 

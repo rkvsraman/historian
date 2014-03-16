@@ -2,7 +2,7 @@
 
 pathfinder.controller('WelcomeCtrl',
 
-    function WelcomeCtrl($scope, $location) {
+    function WelcomeCtrl($scope, $location, $route) {
 
         $scope.onceRendered = false;
         $scope.startedAsNewTab = false;
@@ -70,12 +70,12 @@ pathfinder.controller('WelcomeCtrl',
 
                             gfx.oval(pt.x - w / 2, pt.y - w / 2, w, w, {fill: "#003300", alpha: node.data.alpha})
                             gfx.text("S", pt.x, pt.y + 7, {color: "white", align: "center", font: "Arial", size: 12})
-                            $scope.$apply(function(){
+                            $scope.$apply(function () {
                                 $scope.startedAsNewTab = true;
                             });
 
                         }
-                        else if (node.name === '2' && $scope.startedAsNewTab ) {
+                        else if (node.name === '2' && $scope.startedAsNewTab) {
                             gfx.oval(pt.x - w / 2, pt.y - w / 2, w, w, {fill: "#1947A3", alpha: node.data.alpha})
                             gfx.text(node.name, pt.x, pt.y + 7, {color: "white", align: "center", font: "Arial", size: 12})
                         }
@@ -312,16 +312,19 @@ pathfinder.controller('WelcomeCtrl',
         }
 
         $scope.showDetails = false;
-        $scope.askDetails = function(){
+        $scope.askDetails = function () {
 
             $scope.showDetails = !$scope.showDetails;
         }
 
-        $scope.saveTab = function(){
+        $scope.saveTab = function () {
             chrome.runtime.sendMessage({request: 'saveTab',
-                note:$scope.note,
-                tags:$scope.tags,
+                note: $scope.note,
+                tags: $scope.tags,
                 tabId: $scope.graphData.id}, function (response) {
+                if (response.success) {
+                    $route.reload();
+                }
 
             });
         }
