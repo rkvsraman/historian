@@ -116,7 +116,7 @@ chrome.runtime.onMessage.addListener(function (message, sender, response) {
 
 
 function openSavedTab(id){
-    function populateDB(tx) {
+   /* function populateDB(tx) {
         tx.executeSql('SELECT  graphData FROM pathfinder where id=?', [id], function (tx, results) {
 
 
@@ -137,7 +137,7 @@ function openSavedTab(id){
         }, function (err) {
             console.log("Error %j", err);
             return false;
-        });
+        });    */
 
 }
 
