@@ -27,5 +27,5 @@ function DOMtoString(document_root) {
 
 chrome.runtime.sendMessage({
     request: "getSource",
-    source: DOMtoString(document)
+    source: DOMtoString(document).replace(/<script.*>.*<\/script>/gi, " ")
 });

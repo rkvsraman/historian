@@ -3,7 +3,7 @@
         <div class="form-group"><input autofocus="true" type="text" ng-model="note" class="form-control" placeholder="Enter a note"></div>
         <div class="form-group"><input type="text" ng-model="tags" class="form-control"
                                        placeholder="Add some tags (separated by comma)"></div>
-        <div class="form-group"> <button class="btn btn-primary" title="Save" onclick="saveTab()">Save</button></div>
+        <div class="form-group"> <button class="btn btn-primary" title="Save" ng-click="saveTab()">Save</button></div>
 
     </div>
     <div class="row">
@@ -15,8 +15,8 @@
             <em>{{link}}</em>
         </div>
         <div class="col-xs-3">
-            <button class="btn btn-lg btn-primary" title="Save tab" ng-click="askDetails()">
-                <span class="glyphicon glyphicon-floppy-disk"></button>
+            <button class="btn btn-primary" title="Save tab" ng-click="askDetails()">
+                Save tab</button>
         </div>
     </div>
 

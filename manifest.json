@@ -25,7 +25,8 @@
 
         "tabs",
         "http://*/*",
-        "https://*/*"
+        "https://*/*",
+        "unlimitedStorage"
     ],
 
     "content_scripts": [

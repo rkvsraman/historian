@@ -1,6 +1,7 @@
 var tabs = {};
 var browserGraph = {};
 var current_tab = 0;
+var db;
 
 var initialTabsLoaded = false;
 var Graph = require('data-structures').Graph;
@@ -10,7 +11,7 @@ chrome.runtime.onMessage.addListener(function (message, sender, response) {
 
 
     console.log("Now:" + new Date());
-    console.log("Message %j Sender %j", message,sender);
+    console.log("Message %j Sender %j", message, sender);
     if (message.request === 'getTabInfo') {
         var tabInfo = tabs[current_tab];
         if (tabInfo) {
@@ -88,11 +89,34 @@ chrome.runtime.onMessage.addListener(function (message, sender, response) {
         console.log("Sent response")
     }
     if (message.request === 'getSource') {
-        console.log(message.source);
+        console.log(jQuery(message.source).text());
+    }
+
+    if (message.request === 'saveTab') {
+
+        saveTab(message.tabId, message.note, message.tags);
+        response({success: true});
     }
 
 
 });
+
+function saveTab(tabId, note, tags) {
+
+    if (tabs[tabId]) {
+
+        function populateDB(tx) {
+            tx.executeSql('INSERT INTO pathfinder (graphData, note,tags) ' +
+                'VALUES (?,?,?)',[ tabs[tabId].graph, note ,tags]);
+        }
+        db.transaction(populateDB, function (tx, err) {
+            console.log("%j %j", tx, err);
+        }, function () {
+            console.log("Inserted");
+        });
+
+    }
+}
 
 function createNewTab(tab) {
 
@@ -268,13 +292,13 @@ chrome.tabs.onUpdated.addListener(function (tabID, changeinfo, tab) {
                 tabInfo.lastTitle = tab.title
             }
 
-            chrome.tabs.executeScript(tabID, {
-                file: "src/bg/getSource.js"
-            }, function () {
-                if (chrome.extension.lastError) {
-                    console.log("Count not insert script %j", chrome.extension.lastError);
-                }
-            });
+            /* chrome.tabs.executeScript(tabID, {
+             file: "src/bg/getSource.js"
+             }, function () {
+             if (chrome.extension.lastError) {
+             console.log("Count not insert script %j", chrome.extension.lastError);
+             }
+             }); */
         }
         else {
             console.log("No tab info found for id:" + tabID);
@@ -343,4 +367,22 @@ function setLastUrl(message, tabId) {
         browserGraph.lastURL = tabs[current_tab].lastURL;
     }
 }
+function openDB() {
+
+    db = openDatabase('pathfinder_db', '1.0', 'Pathfinder DB', 10 * 1024 * 1024);
+    function populateDB(tx) {
+        tx.executeSql('drop table  pathfinder');
+        tx.executeSql('CREATE TABLE IF NOT EXISTS pathfinder (id auto_increment,graphData,note,tags)');
+    }
+
+    db.transaction(populateDB, function (tx, err) {
+        console.log("%j %j", tx, err);
+    }, function () {
+        console.log("Table created");
+    });
+
+
+}
+
+openDB();
 loadInitialtabs();

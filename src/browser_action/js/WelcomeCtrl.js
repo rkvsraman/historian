@@ -317,6 +317,15 @@ pathfinder.controller('WelcomeCtrl',
             $scope.showDetails = !$scope.showDetails;
         }
 
+        $scope.saveTab = function(){
+            chrome.runtime.sendMessage({request: 'saveTab',
+                note:$scope.note,
+                tags:$scope.tags,
+                tabId: $scope.graphData.id}, function (response) {
+
+            });
+        }
+
         getGraphData();
 
     });
