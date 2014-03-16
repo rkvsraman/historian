@@ -10,7 +10,7 @@ chrome.runtime.onMessage.addListener(function (message, sender, response) {
 
 
     console.log("Now:" + new Date());
-    console.log("Message %j", message);
+    console.log("Message %j Sender %j", message,sender);
     if (message.request === 'getTabInfo') {
         var tabInfo = tabs[current_tab];
         if (tabInfo) {
@@ -86,6 +86,9 @@ chrome.runtime.onMessage.addListener(function (message, sender, response) {
         delete  tabs[tabId];
         response({status: true});
         console.log("Sent response")
+    }
+    if (message.request === 'getSource') {
+        console.log(message.source);
     }
 
 
@@ -179,8 +182,8 @@ function buildBrowserGraph() {
 
                 if (fNode && lNode &&
                     fURL.indexOf("chrome://newtab") == -1 &&
-                    lURL.indexOf("chrome://newtab") == -1 ) {
-                    browserGraph.graph.addEdge(fURL,lURL);
+                    lURL.indexOf("chrome://newtab") == -1) {
+                    browserGraph.graph.addEdge(fURL, lURL);
 
                 }
 
@@ -243,6 +246,7 @@ chrome.tabs.onUpdated.addListener(function (tabID, changeinfo, tab) {
                 tabInfo.lastTitle = tab.title;
                 browserGraph.lastURL = tabUrl;
 
+
             }
             else {
                 console.log("Same urls ... skipping");
@@ -263,6 +267,14 @@ chrome.tabs.onUpdated.addListener(function (tabID, changeinfo, tab) {
                 destNode.title = tab.title;
                 tabInfo.lastTitle = tab.title
             }
+
+            chrome.tabs.executeScript(tabID, {
+                file: "src/bg/getSource.js"
+            }, function () {
+                if (chrome.extension.lastError) {
+                    console.log("Count not insert script %j", chrome.extension.lastError);
+                }
+            });
         }
         else {
             console.log("No tab info found for id:" + tabID);
