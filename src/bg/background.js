@@ -103,41 +103,61 @@ chrome.runtime.onMessage.addListener(function (message, sender, response) {
         getSavedTabs(response);
     }
 
-    if(message.request === 'openSavedTab'){
+    if (message.request === 'openSavedTab') {
 
-        var id = message.id ;
+        var id = message.id;
 
         openSavedTab(id);
     }
 
 
-
 });
 
 
-function openSavedTab(id){
-   /* function populateDB(tx) {
-        tx.executeSql('SELECT  graphData FROM pathfinder where id=?', [id], function (tx, results) {
+function openSavedTab(id) {
 
+    function populateDB(tx) {
+        tx.executeSql('SELECT  graphData FROM pathfinder WHERE id=?', [id], function (tx, results) {
 
-            if(result.rows.length == 1){
+            if (results.rows.length >= 1) {
+                var thisGraph = JSON.parse(results.rows.item(0).graphData);
+                console.log('Graphdata %j', thisGraph);
+                var tabInfo = {};
+                tabInfo.id = thisGraph.id;
+                tabInfo.graph = new Graph();
+                tabInfo.graph._nodes = thisGraph.graph._nodes;
+                tabInfo.lastURL = thisGraph.lastURL;
+                tabInfo.prevURL = thisGraph.prevURL;
+                tabInfo.graph.nodeSize = thisGraph.graph.nodeSize;
+                tabInfo.graph.edgeSize = thisGraph.graph.edgeSize;
+                tabInfo.firstURL = thisGraph.firstURL
+                tabInfo.lastTitle = thisGraph.lastTitle;
+                console.log('Constructed graph %j', tabInfo);
 
-                var resInfo = results.rows.item(0).graphData;
+                chrome.tabs.create({active: true, url: tabInfo.lastURL}, function (tab) {
+                    tabs[tab.id] = tabInfo;
+                    tabs[tab.id].graph.forEachNode(function (nodeObject, nodeid) {
+                        nodeObject.tabId = tab.id;
+                    });
+                    tabs[tab.id].id = tab.id;
+                    tabs[tab.id].closed = false;
 
-
-            }
-        }
-
-            chrome.runtime.sendMessage({request: 'savedTabresults', results: qResults},
-                function (response) {
                 });
-
-            console.log("Returned results");
+            }
             return false;
         }, function (err) {
             console.log("Error %j", err);
             return false;
-        });    */
+        });
+    }
+
+    db.transaction(populateDB, function (tx, err) {
+        console.log("%j %j", tx, err);
+        return false;
+    }, function () {
+        console.log("Rows returned");
+        return false;
+    });
 
 }
 
@@ -146,8 +166,8 @@ function saveTab(tabId, note, tags) {
     if (tabs[tabId]) {
 
         function populateDB(tx) {
-            tx.executeSql('INSERT INTO pathfinder (graphData, note,tags) VALUES (?,?,?)',
-                [ tabs[tabId].graph, note , tags]);
+            tx.executeSql('INSERT INTO pathfinder (graphData, note,tags,created_time,no_of_pages) VALUES (?,?,?,?,?)',
+                [ JSON.stringify(tabs[tabId]), note , tags, new Date(), tabs[tabId].graph.nodeSize]);
         }
 
         db.transaction(populateDB, function (tx, err) {
@@ -163,7 +183,7 @@ function getSavedTabs(response) {
 
 
     function populateDB(tx) {
-        tx.executeSql('SELECT  id,note,tags FROM pathfinder', [], function (tx, results) {
+        tx.executeSql('SELECT  id,note,tags,created_time,no_of_pages FROM pathfinder', [], function (tx, results) {
 
             var qResults = [];
             for (var i = 0; i < results.rows.length; i++) {
@@ -171,6 +191,8 @@ function getSavedTabs(response) {
                 resultitem.id = results.rows.item(i).id;
                 resultitem.note = results.rows.item(i).note;
                 resultitem.tags = results.rows.item(i).tags;
+                resultitem.created_time = results.rows.item(i).created_time;
+                resultitem.no_of_pages = results.rows.item(i).no_of_pages;
                 qResults.push(resultitem);
             }
 
@@ -451,8 +473,8 @@ function openDB() {
 
     db = openDatabase('pathfinder_db', '1.0', 'Pathfinder DB', 10 * 1024 * 1024);
     function populateDB(tx) {
-        tx.executeSql('DROP TABLE  pathfinder');
-        tx.executeSql('CREATE TABLE IF NOT EXISTS pathfinder (id INTEGER PRIMARY KEY AUTOINCREMENT,graphData,note,tags)');
+        //  tx.executeSql('DROP TABLE  pathfinder');
+        tx.executeSql('CREATE TABLE IF NOT EXISTS pathfinder (id INTEGER PRIMARY KEY AUTOINCREMENT,graphData,note,tags,created_time,no_of_pages)');
     }
 
     db.transaction(populateDB, function (tx, err) {
