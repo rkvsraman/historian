@@ -322,10 +322,7 @@ pathfinder.controller('WelcomeCtrl',
                 note: $scope.note,
                 tags: $scope.tags,
                 tabId: $scope.graphData.id}, function (response) {
-                if (response.success) {
-                    $route.reload();
-                }
-
+                $scope.askDetails();
             });
         }
 

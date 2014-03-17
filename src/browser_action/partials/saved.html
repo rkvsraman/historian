@@ -11,16 +11,16 @@
         </div>
         <div class="col-xs-6 col-xs-offset-1">
             <div><strong>{{tab.note | limitTo:40}} </strong></div>
-            <div><em>{{tab.tags | limitTo:80}}</em></div>
-            <div><em>{{tab.created_time | limitTo:80}}</em></div>
-            <div><em>{{tab.no_of_pages | limitTo:80}}</em></div>
+            <div><em>Tags: {{tab.tags | limitTo:80}}</em></div>
+            <div><em>Created on: {{tab.created_time | limitTo:80}}</em></div>
+            <div><em>Pages: {{tab.no_of_pages | limitTo:80}}</em></div>
 
         </div>
-    <!--    <div class="col-xs-1 pull-right">
+        <div class="col-xs-1 pull-right">
             <button class="btn btn-lg btn-danger" title="Delete tab" ng-click="deleteTab(tab.id)">
                 <span class="glyphicon glyphicon-trash"></span>
             </button>
-        </div> -->
+        </div>
     </div>
 </div>
 <div class="container largepadding" ng-show="no_tabs">

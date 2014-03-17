@@ -88,6 +88,11 @@ chrome.runtime.onMessage.addListener(function (message, sender, response) {
         response({status: true});
         console.log("Sent response")
     }
+    if (message.request === 'deleteSavedTab') {
+        var id = message.id;
+        deleteSavedTab(id);
+        response({success: true});
+    }
     if (message.request === 'getSource') {
         console.log(jQuery(message.source).text());
     }
@@ -113,6 +118,27 @@ chrome.runtime.onMessage.addListener(function (message, sender, response) {
 
 });
 
+function deleteSavedTab(id) {
+
+    function populateDB(tx) {
+        tx.executeSql('DELETE FROM pathfinder WHERE id=?', [id], function (tx, results) {
+
+            return false;
+        }, function (err) {
+            console.log("Error %j", err);
+            return false;
+        });
+    }
+
+    db.transaction(populateDB, function (tx, err) {
+        console.log("%j %j", tx, err);
+        return false;
+    }, function () {
+        console.log("Rows returned");
+        return false;
+    });
+
+}
 
 function openSavedTab(id) {
 
@@ -191,7 +217,7 @@ function getSavedTabs(response) {
                 resultitem.id = results.rows.item(i).id;
                 resultitem.note = results.rows.item(i).note;
                 resultitem.tags = results.rows.item(i).tags;
-                resultitem.created_time = results.rows.item(i).created_time;
+                resultitem.created_time = new Date(results.rows.item(i).created_time).toLocaleDateString();
                 resultitem.no_of_pages = results.rows.item(i).no_of_pages;
                 qResults.push(resultitem);
             }

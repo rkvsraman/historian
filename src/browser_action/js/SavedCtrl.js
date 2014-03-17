@@ -21,6 +21,14 @@ pathfinder.controller('SavedCtrl',
             });
 
         }
+
+        $scope.deleteTab = function (id) {
+            chrome.runtime.sendMessage({request: 'deleteSavedTab', id: id}, function (response) {
+
+                getSavedTabs();
+            });
+
+        }
         chrome.runtime.onMessage.addListener(function (message, sender, response) {
             if (message.request === 'savedTabresults') {
 
