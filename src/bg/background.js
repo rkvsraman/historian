@@ -13,13 +13,8 @@ chrome.runtime.onMessage.addListener(function (message, sender, response) {
     console.log("Now:" + new Date());
     console.log("Message %j Sender %j", message, sender);
     if (message.request === 'getTabInfo') {
-        var tabInfo = tabs[current_tab];
-        if (tabInfo) {
-            sendTabInfo(response);
-        }
-        else {
-            response({error: "No tab information"});
-        }
+
+        sendTabInfo(response);
 
     }
     if (message.request === 'openLink') {
@@ -119,23 +114,36 @@ chrome.runtime.onMessage.addListener(function (message, sender, response) {
 
 function sendTabInfo(response) {
 
-    var tabInfo = tabs[current_tab];
-    console.log("Sending tab info for id:" + current_tab);
-    console.log("%j", tabInfo);
+
+    if (tabs[current_tab]) {
+        var tabInfo = getTabInfo(tabs[current_tab]);
+        response(tabInfo);
+    }
+    else {
+        response({error: "No tab information!!"});
+    }
+}
+
+function getTabInfo(currTab) {
+
+    var tabInfo = currTab;
+
     for (var tab in tabs) {
-        if (!tabs[tab].closed &&
+        if (tabs[tab].id != tabInfo.id && !tabs[tab].closed &&
             tabs[tab].prevURL &&
             tabInfo.graph.getNode(tabs[tab].prevURL)) {
             tabInfo = mergeGraphs(tabInfo, tabs[tab]);
         }
     }
 
-    response(tabInfo);
+    return tabInfo;
+
 }
+
 
 function mergeGraphs(tab1, tab2) {
 
-    var tabInfo = {};
+    var tabInfo = {};              // Set up basic object
     tabInfo.id = tab1.id;
     tabInfo.graph = new Graph();
     tabInfo.graph._nodes = tab1.graph._nodes;
@@ -145,22 +153,31 @@ function mergeGraphs(tab1, tab2) {
     tabInfo.graph.edgeSize = tab1.graph.edgeSize;
     tabInfo.firstURL = tab1.firstURL
     tabInfo.lastTitle = tab1.lastTitle;
-    tab2.graph.forEachNode(function (node, id) {
+
+
+    var tab3 = getTabInfo(tab2);   // Recursing for each other tab's children
+
+
+    tab3.graph.forEachNode(function (node, id) {       // Add each node to parent graph
         if (!tabInfo.graph.getNode(id)) {
             var newnode = tabInfo.graph.addNode(id);
             newnode.title = node.title;
             newnode.tabId = tab1.id;
         }
     });
-    tabInfo.graph.addEdge(tab2.prevURL, tab2.firstURL);
-    tab2.graph.forEachNode(function (node, id) {
 
-        console.log(" Looking for "+ id);
+
+    tabInfo.graph.addEdge(tab3.prevURL, tab3.firstURL); // Link parent graph and chile graph
+
+
+    tab3.graph.forEachNode(function (node, id) { // Set up edges of the child graph in parent graph
+
+        console.log(" Looking for " + id);
         var newnode = tabInfo.graph.getNode(id);
         if (newnode) {
             console.log("New node was found")
             for (var outNode in node._outEdges) {
-                console.log("OutEdge "+ outNode);
+                console.log("OutEdge " + outNode);
                 tabInfo.graph.addEdge(id, outNode);
             }
         }
@@ -242,9 +259,11 @@ function saveTab(tabId, note, tags) {
 
     if (tabs[tabId]) {
 
+        var tabInfo = getTabInfo(tabs[tabId]);
+
         function populateDB(tx) {
             tx.executeSql('INSERT INTO pathfinder (graphData, note,tags,created_time,no_of_pages) VALUES (?,?,?,?,?)',
-                [ JSON.stringify(tabs[tabId]), note , tags, new Date(), tabs[tabId].graph.nodeSize]);
+                [ JSON.stringify(tabInfo), note , tags, new Date(), tabInfo.graph.nodeSize]);
         }
 
         db.transaction(populateDB, function (tx, err) {
