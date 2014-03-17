@@ -1,5 +1,9 @@
 <div class="container">
-    <div class="row closedrow" ng-repeat="tab in tabs">
+    <div class="form-group" ng-show="!no_tabs">
+        <input autofocus="true" class="form-control" type="text" ng-model="searchText"
+               placeholder="Search closed tabs">
+    </div>
+    <div class="row closedrow" ng-repeat="tab in tabs | filter:searchText">
         <div class="col-xs-1">
             <button class="btn btn-lg btn-success" title="Restore tab" ng-click="openTab(tab.id)">
                 <span class="glyphicon glyphicon-folder-open"></span>
