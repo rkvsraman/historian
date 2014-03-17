@@ -2,7 +2,7 @@
 
 pathfinder.controller('WelcomeCtrl',
 
-    function WelcomeCtrl($scope, $location, $route) {
+    function WelcomeCtrl($scope, $location, $route, $routeParams) {
 
         $scope.onceRendered = false;
         $scope.startedAsNewTab = false;
@@ -329,6 +329,15 @@ pathfinder.controller('WelcomeCtrl',
             });
         }
 
+        $scope.$on('saveTab', function (event, data) {
+            $scope.askDetails();
+        });
         getGraphData();
+
+
+        if ($routeParams.showDetails) {
+            $scope.askDetails();
+        }
+
 
     });
