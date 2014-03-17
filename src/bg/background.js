@@ -15,9 +15,7 @@ chrome.runtime.onMessage.addListener(function (message, sender, response) {
     if (message.request === 'getTabInfo') {
         var tabInfo = tabs[current_tab];
         if (tabInfo) {
-            console.log("Sending tab info for id:" + current_tab);
-            console.log("%j", tabInfo);
-            response(tabInfo);
+            sendTabInfo(response);
         }
         else {
             response({error: "No tab information"});
@@ -117,6 +115,59 @@ chrome.runtime.onMessage.addListener(function (message, sender, response) {
 
 
 });
+
+
+function sendTabInfo(response) {
+
+    var tabInfo = tabs[current_tab];
+    console.log("Sending tab info for id:" + current_tab);
+    console.log("%j", tabInfo);
+    for (var tab in tabs) {
+        if (!tabs[tab].closed &&
+            tabs[tab].prevURL &&
+            tabInfo.graph.getNode(tabs[tab].prevURL)) {
+            tabInfo = mergeGraphs(tabInfo, tabs[tab]);
+        }
+    }
+
+    response(tabInfo);
+}
+
+function mergeGraphs(tab1, tab2) {
+
+    var tabInfo = {};
+    tabInfo.id = tab1.id;
+    tabInfo.graph = new Graph();
+    tabInfo.graph._nodes = tab1.graph._nodes;
+    tabInfo.lastURL = tab1.lastURL;
+    tabInfo.prevURL = tab1.prevURL;
+    tabInfo.graph.nodeSize = tab1.graph.nodeSize;
+    tabInfo.graph.edgeSize = tab1.graph.edgeSize;
+    tabInfo.firstURL = tab1.firstURL
+    tabInfo.lastTitle = tab1.lastTitle;
+    tab2.graph.forEachNode(function (node, id) {
+        if (!tabInfo.graph.getNode(id)) {
+            var newnode = tabInfo.graph.addNode(id);
+            newnode.title = node.title;
+            newnode.tabId = tab1.id;
+        }
+    });
+    tabInfo.graph.addEdge(tab2.prevURL, tab2.firstURL);
+    tab2.graph.forEachNode(function (node, id) {
+
+        console.log(" Looking for "+ id);
+        var newnode = tabInfo.graph.getNode(id);
+        if (newnode) {
+            console.log("New node was found")
+            for (var outNode in node._outEdges) {
+                console.log("OutEdge "+ outNode);
+                tabInfo.graph.addEdge(id, outNode);
+            }
+        }
+    });
+
+    return tabInfo;
+}
 
 function deleteSavedTab(id) {
 
