@@ -443,6 +443,10 @@ chrome.tabs.onUpdated.addListener(function (tabID, changeinfo, tab) {
         var tabInfo = tabs[tabID];
         if (tabInfo) {
             console.log("Tab id:" + tabID + " last_url:" + tabInfo.lastURL);
+            if(tabInfo.lastURL === 'emptyurl'){
+                tabInfo.firstURL = tabUrl;
+                tabInfo.prevURL = browserGraph.lastURL;
+            }
             if (tabInfo.lastURL != tabUrl) {
 
                 var sourceNode = tabInfo.graph.getNode(tabInfo.lastURL);
