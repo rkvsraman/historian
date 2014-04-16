@@ -9,6 +9,11 @@ var initialTabsLoaded = false;
 var Graph = require('data-structures').Graph;
 
 var words = new Graph();
+var autotags = new AUTOTAGS.createTagger({});
+autotags.COMPOUND_TAG_SEPARATOR = '_';
+autotags.NGRAM_BASED_ON_CAPITALISATION_BOOST = 7;
+autotags.BIGRAM_BOOST = 5;
+
 var urls = [];
 
 
@@ -128,7 +133,7 @@ function addtoWords(message, sender) {
     if (_.contains(urls, sender.url))
         return;
     urls.push(sender.url);
-    var tfidf = new natural.TfIdf();
+    /*var tfidf = new natural.TfIdf();
     tfidf.addDocument(message.source, null);
     tfidf.listTerms(0).forEach(function (item) {
         if (item.tfidf > 1) {
@@ -147,8 +152,9 @@ function addtoWords(message, sender) {
         }
 
 
-    });
-    console.log('%j', words);
+    }); */
+    var tag = autotags.analyzeText(message.source, 150);
+    console.log('%j', tag);
 }
 
 

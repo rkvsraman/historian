@@ -5,4 +5,5 @@
  */
 
 // These tags will always be suggested and appended to the TagSet returned.
-AUTOTAGS.TAG_CONSTANTS = [ 'news','research','favourite' ];
+//AUTOTAGS.TAG_CONSTANTS = [ 'news','research','favourite' ];
+AUTOTAGS.TAG_CONSTANTS = [];
