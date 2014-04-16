@@ -24,8 +24,12 @@
     "permissions": [
 
         "tabs",
-        "unlimitedStorage"
+        "unlimitedStorage",
+        "http://*/*",
+        "https://*/*"
     ]
+
+
 
 
 }

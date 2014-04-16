@@ -329,6 +329,8 @@ pathfinder.controller('WelcomeCtrl',
         $scope.$on('saveTab', function (event, data) {
             $scope.askDetails();
         });
+
+
         getGraphData();
 
 

@@ -1,10 +1,15 @@
 var tabs = {};
 var browserGraph = {};
+browserGraph.lastURL = '';
 var current_tab = 0;
 var db;
 
+
 var initialTabsLoaded = false;
 var Graph = require('data-structures').Graph;
+
+var words = new Graph();
+var urls = [];
 
 
 chrome.runtime.onMessage.addListener(function (message, sender, response) {
@@ -87,7 +92,13 @@ chrome.runtime.onMessage.addListener(function (message, sender, response) {
         response({success: true});
     }
     if (message.request === 'getSource') {
-        console.log(jQuery(message.source).text());
+        //console.log("Message source " + analyze_web_text(message.source));
+
+        addtoWords(message, sender);
+
+        response({success: true});
+
+
     }
 
     if (message.request === 'saveTab') {
@@ -110,6 +121,35 @@ chrome.runtime.onMessage.addListener(function (message, sender, response) {
 
 
 });
+
+function addtoWords(message, sender) {
+
+
+    if (_.contains(urls, sender.url))
+        return;
+    urls.push(sender.url);
+    var tfidf = new natural.TfIdf();
+    tfidf.addDocument(message.source, null);
+    tfidf.listTerms(0).forEach(function (item) {
+        if (item.tfidf > 1) {
+            var word = words.getNode(item.term);
+            if (word) {
+                word.urls.push(sender.url);
+                word.count++;
+
+            }
+            else {
+                word = words.addNode(item.term);
+                word.urls = [];
+                word.urls.push(sender.url);
+                word.count = 1;
+            }
+        }
+
+
+    });
+    console.log('%j', words);
+}
 
 
 function sendTabInfo(response) {
@@ -314,7 +354,7 @@ function getSavedTabs(response) {
 
 }
 
-function createNewTab(tab) {
+function createNewTab(tab, initialSetup) {
 
     if (tabs[tab.id]) {
         return;
@@ -338,13 +378,17 @@ function createNewTab(tab) {
     tabInfo.graph = new Graph();
     tabs[tab.id] = tabInfo;
     tabInfo.lastURL = 'emptyurl';
+    tabInfo.prevURL = '';
     if (!tab.url) {
         console.log("Found empty url... returning");
         return;
     }
 
     tabInfo.firstURL = tabUrl;
-    tabInfo.prevURL = browserGraph.lastURL;
+
+    if (tabUrl.indexOf('chrome://newtab') == -1) {
+        tabInfo.prevURL = browserGraph.lastURL;
+    }
 
 
     var node = tabInfo.graph.addNode(tabUrl);
@@ -355,9 +399,9 @@ function createNewTab(tab) {
     tabInfo.lastTitle = tab.title;
 
 
-    if (tabUrl.indexOf('chrome://newtab') != -1) {
+    if (!initialSetup)
         browserGraph.lastURL = tabUrl;
-    }
+
 }
 
 function buildBrowserGraph() {
@@ -416,7 +460,7 @@ function buildBrowserGraph() {
 
 chrome.tabs.onCreated.addListener(function (tab) {
 
-    createNewTab(tab);
+    createNewTab(tab, false);
 
 
 });
@@ -443,9 +487,11 @@ chrome.tabs.onUpdated.addListener(function (tabID, changeinfo, tab) {
         var tabInfo = tabs[tabID];
         if (tabInfo) {
             console.log("Tab id:" + tabID + " last_url:" + tabInfo.lastURL);
-            if(tabInfo.lastURL === 'emptyurl'){
+            if (tabInfo.lastURL === 'emptyurl') {
                 tabInfo.firstURL = tabUrl;
-                tabInfo.prevURL = browserGraph.lastURL;
+                if (tabUrl.indexOf('chrome://newtab') == -1) {
+                    tabInfo.prevURL = browserGraph.lastURL;
+                }
             }
             if (tabInfo.lastURL != tabUrl) {
 
@@ -492,13 +538,13 @@ chrome.tabs.onUpdated.addListener(function (tabID, changeinfo, tab) {
                 tabInfo.lastTitle = tab.title
             }
 
-            /* chrome.tabs.executeScript(tabID, {
-             file: "src/bg/getSource.js"
-             }, function () {
-             if (chrome.extension.lastError) {
-             console.log("Count not insert script %j", chrome.extension.lastError);
-             }
-             }); */
+            chrome.tabs.executeScript(tabID, {
+                file: "src/bg/getSource.js"
+            }, function () {
+                if (chrome.extension.lastError) {
+                    console.log("Count not insert script %j", chrome.extension.lastError);
+                }
+            });
         }
         else {
             console.log("No tab info found for id:" + tabID);
@@ -549,7 +595,7 @@ function loadInitialtabs() {
 
         for (var i = 0; i < tabs.length; i++) {
 
-            createNewTab(tabs[i]);
+            createNewTab(tabs[i], true);
         }
         initialTabsLoaded = true;
 
