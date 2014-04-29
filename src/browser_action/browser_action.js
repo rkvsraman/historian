@@ -5,13 +5,13 @@ pathfinder.config(['$routeProvider',
     function ($routeProvider) {
 
         $routeProvider.
-            when('/', {
+            when('/cloud', {
                 templateUrl: 'partials/cloud.html',
                 controller: 'CloudCtrl'
             });
 
         $routeProvider.
-            when('/current', {
+            when('/', {
                 templateUrl: 'partials/welcome.html',
                 controller: 'WelcomeCtrl'
             });

@@ -47,11 +47,31 @@ function getTextNodes(document_root) {
             }
         }, false);
 
-    while (treewalker.nextNode())
+    while (treewalker.nextNode())  {
+        html += ' ';
         html += treewalker.currentNode.nodeValue;
+    }
     return html;
 
 }
+
+function insertButton(){
+
+    /*var jq = document.createElement("script");
+    jq.setAttribute('src','../../js/jquery/jquery.js');
+    var  slidepanel = document.createElement('script');
+    slidepanel.setAttribute('src','../../js/jquery/jquery.slidepanel.js' );
+
+
+    var button = document.createElement("button");
+    button.innerHTML = "Clickme";
+    var width  = window.innerWidth -150
+    var height = (window.innerHeight/2)-150;
+    button.setAttribute('style','position:fixed;width:70;' +
+        '-webkit-transform: rotate(-90deg);left:'+width + ';top:'+height);
+    document.body.appendChild(button);*/
+}
+//insertButton();
 
 chrome.runtime.sendMessage({
     request: "getSource",

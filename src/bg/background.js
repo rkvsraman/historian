@@ -127,6 +127,137 @@ chrome.runtime.onMessage.addListener(function (message, sender, response) {
 
 });
 
+chrome.tabs.onCreated.addListener(function (tab) {
+
+    createNewTab(tab, false);
+
+
+});
+
+chrome.tabs.onUpdated.addListener(function (tabID, changeinfo, tab) {
+
+    console.log("Now:" + new Date());
+
+    var tabUrl = tab.url;
+
+    if (tabUrl.indexOf('chrome-devtools') != -1) {
+        return;
+    }
+    if (tabUrl.indexOf('chrome://newtab') != -1) {
+        return;
+    }
+    console.log("On update status:" + changeinfo.status + "  id:" + tab.id + " url:" + tabUrl + " last:" + browserGraph.lastURL);
+    if (!tab.url) {
+        console.log("Found empty url... returning");
+        return;
+    }
+
+    if (changeinfo.status === 'loading') {
+        var tabInfo = tabs[tabID];
+        if (tabInfo) {
+            console.log("Tab id:" + tabID + " last_url:" + tabInfo.lastURL);
+            if (tabInfo.lastURL === 'emptyurl') {
+                tabInfo.firstURL = tabUrl;
+                if (tabUrl.indexOf('chrome://newtab') == -1) {
+                    tabInfo.prevURL = browserGraph.lastURL;
+                }
+            }
+            if (tabInfo.lastURL != tabUrl) {
+
+                var sourceNode = tabInfo.graph.getNode(tabInfo.lastURL);
+                var destNode = tabInfo.graph.getNode(tabUrl);
+
+
+                if (!destNode) {
+                    destNode = tabInfo.graph.addNode(tabUrl);
+                    destNode.title = tab.title;
+                    destNode.tabId = tab.id;
+                    destNode.winId = tab.windowId;
+                }
+
+
+                if (sourceNode && destNode) {
+                    tabInfo.graph.addEdge(tabInfo.lastURL, tabUrl);
+                }
+
+
+                tabInfo.lastURL = tabUrl;
+                tabInfo.lastTitle = tab.title;
+                browserGraph.lastURL = tabUrl;
+
+
+            }
+            else {
+                console.log("Same urls ... skipping");
+            }
+
+        }
+        else {
+            console.log("No tab info found for id:" + tabID);
+        }
+
+    }
+    if (changeinfo.status === 'complete') {
+        var tabInfo = tabs[tabID];
+        if (tabInfo) {
+            var destNode = tabInfo.graph.getNode(tabUrl);
+
+            if (destNode) {
+                destNode.title = tab.title;
+                tabInfo.lastTitle = tab.title
+            }
+
+            chrome.tabs.executeScript(tabID, {
+                file: "src/bg/getSource.js"
+            }, function () {
+                if (chrome.extension.lastError) {
+                    console.log("Count not insert script %j", chrome.extension.lastError);
+                }
+            });
+        }
+        else {
+            console.log("No tab info found for id:" + tabID);
+        }
+    }
+
+});
+
+chrome.tabs.onActivated.addListener(function (activeInfo) {
+
+    setLastUrl('Activated', activeInfo.tabId);
+
+});
+
+chrome.tabs.onDetached.addListener(function (tabId, detachInfo) {
+
+    setLastUrl('Detached', tabId);
+});
+
+
+chrome.tabs.onAttached.addListener(function (tabId, attachInfo) {
+
+    setLastUrl('Attached', tabId);
+});
+
+chrome.tabs.onRemoved.addListener(function (tabId, removeInfo) {
+
+    closeTab(tabId);
+});
+
+function closeTab(tabId) {
+    console.log("Now:" + new Date());
+
+    console.log("Closing tab:" + tabId);
+    var tabInfo = tabs[tabId];
+    if (tabInfo) {
+        tabInfo.closed = true;
+    }
+    else {
+        console.log("Tab was not found in Tabinfo");
+    }
+}
+
+
 function addtoWords(message, sender) {
 
 
@@ -464,135 +595,6 @@ function buildBrowserGraph() {
     return browserGraph;
 }
 
-chrome.tabs.onCreated.addListener(function (tab) {
-
-    createNewTab(tab, false);
-
-
-});
-
-chrome.tabs.onUpdated.addListener(function (tabID, changeinfo, tab) {
-
-    console.log("Now:" + new Date());
-
-    var tabUrl = tab.url;
-
-    if (tabUrl.indexOf('chrome-devtools') != -1) {
-        return;
-    }
-    if (tabUrl.indexOf('chrome://newtab') != -1) {
-        return;
-    }
-    console.log("On update status:" + changeinfo.status + "  id:" + tab.id + " url:" + tabUrl + " last:" + browserGraph.lastURL);
-    if (!tab.url) {
-        console.log("Found empty url... returning");
-        return;
-    }
-
-    if (changeinfo.status === 'loading') {
-        var tabInfo = tabs[tabID];
-        if (tabInfo) {
-            console.log("Tab id:" + tabID + " last_url:" + tabInfo.lastURL);
-            if (tabInfo.lastURL === 'emptyurl') {
-                tabInfo.firstURL = tabUrl;
-                if (tabUrl.indexOf('chrome://newtab') == -1) {
-                    tabInfo.prevURL = browserGraph.lastURL;
-                }
-            }
-            if (tabInfo.lastURL != tabUrl) {
-
-                var sourceNode = tabInfo.graph.getNode(tabInfo.lastURL);
-                var destNode = tabInfo.graph.getNode(tabUrl);
-
-
-                if (!destNode) {
-                    destNode = tabInfo.graph.addNode(tabUrl);
-                    destNode.title = tab.title;
-                    destNode.tabId = tab.id;
-                    destNode.winId = tab.windowId;
-                }
-
-
-                if (sourceNode && destNode) {
-                    tabInfo.graph.addEdge(tabInfo.lastURL, tabUrl);
-                }
-
-
-                tabInfo.lastURL = tabUrl;
-                tabInfo.lastTitle = tab.title;
-                browserGraph.lastURL = tabUrl;
-
-
-            }
-            else {
-                console.log("Same urls ... skipping");
-            }
-
-        }
-        else {
-            console.log("No tab info found for id:" + tabID);
-        }
-
-    }
-    if (changeinfo.status === 'complete') {
-        var tabInfo = tabs[tabID];
-        if (tabInfo) {
-            var destNode = tabInfo.graph.getNode(tabUrl);
-
-            if (destNode) {
-                destNode.title = tab.title;
-                tabInfo.lastTitle = tab.title
-            }
-
-            chrome.tabs.executeScript(tabID, {
-                file: "src/bg/getSource.js"
-            }, function () {
-                if (chrome.extension.lastError) {
-                    console.log("Count not insert script %j", chrome.extension.lastError);
-                }
-            });
-        }
-        else {
-            console.log("No tab info found for id:" + tabID);
-        }
-    }
-
-});
-
-chrome.tabs.onActivated.addListener(function (activeInfo) {
-
-    setLastUrl('Activated', activeInfo.tabId);
-
-});
-
-chrome.tabs.onDetached.addListener(function (tabId, detachInfo) {
-
-    setLastUrl('Detached', tabId);
-});
-
-
-chrome.tabs.onAttached.addListener(function (tabId, attachInfo) {
-
-    setLastUrl('Attached', tabId);
-});
-
-chrome.tabs.onRemoved.addListener(function (tabId, removeInfo) {
-
-    closeTab(tabId);
-});
-
-function closeTab(tabId) {
-    console.log("Now:" + new Date());
-
-    console.log("Closing tab:" + tabId);
-    var tabInfo = tabs[tabId];
-    if (tabInfo) {
-        tabInfo.closed = true;
-    }
-    else {
-        console.log("Tab was not found in Tabinfo");
-    }
-}
 
 function loadInitialtabs() {
     if (initialTabsLoaded)
