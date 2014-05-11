@@ -4,6 +4,7 @@
     "manifest_version": 2,
     "description": "This extension shows a visual path of your browsing activity on each tab",
     "homepage_url": "http://sites.google.com/site/rkvsraman",
+    "omnibox": { "keyword" : "hi" },
     "icons": {
         "16": "icons/icon16.png",
         "48": "icons/icon48.png",

@@ -7,14 +7,17 @@ var db;
 
 var initialTabsLoaded = false;
 var Graph = require('data-structures').Graph;
+var Trie = require('data-structures').Trie;
 
 var words = new Graph();
+var wordTrie = new Trie();
 var autotags = new AUTOTAGS.createTagger({});
-autotags.COMPOUND_TAG_SEPARATOR = '_';
+autotags.COMPOUND_TAG_SEPARATOR = ' ';
 autotags.NGRAM_BASED_ON_CAPITALISATION_BOOST = 7;
 autotags.BIGRAM_BOOST = 5;
 
 var urls = [];
+
 
 
 chrome.runtime.onMessage.addListener(function (message, sender, response) {
@@ -22,6 +25,7 @@ chrome.runtime.onMessage.addListener(function (message, sender, response) {
 
     console.log("Now:" + new Date());
     console.log("Message %j Sender %j", message, sender);
+
     if (message.request === 'getTabInfo') {
 
         sendTabInfo(response);
@@ -30,11 +34,16 @@ chrome.runtime.onMessage.addListener(function (message, sender, response) {
     if (message.request === 'openLink') {
 
 
-        chrome.tabs.update(message.tabId, {url: message.link, active: true}, function (tab) {
+        chrome.tabs.update(message.tabId, {
+            url: message.link,
+            active: true
+        }, function (tab) {
 
         });
 
-        response({success: "true"});
+        response({
+            success: "true"
+        });
 
     }
 
@@ -69,39 +78,50 @@ chrome.runtime.onMessage.addListener(function (message, sender, response) {
 
         if (tabs[tabId].closed) {
 
-            chrome.tabs.create({active: true, url: tabs[tabId].lastURL}, function (tab) {
+            chrome.tabs.create({
+                active: true,
+                url: tabs[tabId].lastURL
+            }, function (tab) {
                 tabs[tab.id] = tabs[tabId];
                 tabs[tab.id].graph.forEachNode(function (nodeObject, nodeid) {
                     nodeObject.tabId = tab.id;
                 });
                 tabs[tab.id].id = tab.id;
                 tabs[tab.id].closed = false;
-                delete   tabs[tabId];
+                delete tabs[tabId];
             });
 
         }
-        response({status: true});
+        response({
+            status: true
+        });
     }
 
     if (message.request === 'deleteTab') {
 
         tabId = message.tabId;
         closeTab(tabId);
-        delete  tabs[tabId];
-        response({status: true});
+        delete tabs[tabId];
+        response({
+            status: true
+        });
         console.log("Sent response")
     }
     if (message.request === 'deleteSavedTab') {
         var id = message.id;
         deleteSavedTab(id);
-        response({success: true});
+        response({
+            success: true
+        });
     }
     if (message.request === 'getSource') {
         //console.log("Message source " + analyze_web_text(message.source));
 
         addtoWords(message, sender);
 
-        response({success: true});
+        response({
+            success: true
+        });
 
 
     }
@@ -109,7 +129,9 @@ chrome.runtime.onMessage.addListener(function (message, sender, response) {
     if (message.request === 'saveTab') {
 
         saveTab(message.tabId, message.note, message.tags);
-        response({success: true});
+        response({
+            success: true
+        });
     }
 
     if (message.request === 'getSavedTabs') {
@@ -186,13 +208,11 @@ chrome.tabs.onUpdated.addListener(function (tabID, changeinfo, tab) {
                 browserGraph.lastURL = tabUrl;
 
 
-            }
-            else {
+            } else {
                 console.log("Same urls ... skipping");
             }
 
-        }
-        else {
+        } else {
             console.log("No tab info found for id:" + tabID);
         }
 
@@ -214,8 +234,7 @@ chrome.tabs.onUpdated.addListener(function (tabID, changeinfo, tab) {
                     console.log("Count not insert script %j", chrome.extension.lastError);
                 }
             });
-        }
-        else {
+        } else {
             console.log("No tab info found for id:" + tabID);
         }
     }
@@ -244,6 +263,34 @@ chrome.tabs.onRemoved.addListener(function (tabId, removeInfo) {
     closeTab(tabId);
 });
 
+
+chrome.omnibox.onInputChanged.addListener(
+    function (text, suggest) {
+       // console.log('inputChanged: ' + text);
+
+        var arr = wordTrie.wordsWithPrefix(text);
+
+        var suggestArr = [];
+        for (var i = 0; i < arr.length; i++) {
+            suggestArr.push({
+                content: arr[i],
+                description:'Search in google for:'+ arr[i]
+            });
+
+        }
+        suggest(suggestArr);
+    });
+
+chrome.omnibox.onInputEntered.addListener(
+    function (text) {
+        // console.log('inputEntered: ' + text);
+        chrome.tabs.create({
+            active: true,
+            url: 'https://www.google.co.in/search?q=' + text
+        }, function (tab) {});
+
+    });
+
 function closeTab(tabId) {
     console.log("Now:" + new Date());
 
@@ -251,8 +298,7 @@ function closeTab(tabId) {
     var tabInfo = tabs[tabId];
     if (tabInfo) {
         tabInfo.closed = true;
-    }
-    else {
+    } else {
         console.log("Tab was not found in Tabinfo");
     }
 }
@@ -284,8 +330,17 @@ function addtoWords(message, sender) {
 
 
     }); */
-    var tag = autotags.analyzeText(message.source, 150);
-    console.log('%j', tag);
+    var tagSet = autotags.analyzeText(message.source, 1000);
+    for (var t in tagSet.tags) {
+        var tag = tagSet.tags[t];
+        
+        if(tag.score > 1){
+
+         console.log(tag._term.toLowerCase());
+        wordTrie.add(tag._term.toLowerCase());
+        }
+    }
+    //console.log('%j', tag);
 }
 
 
@@ -295,9 +350,10 @@ function sendTabInfo(response) {
     if (tabs[current_tab]) {
         var tabInfo = getTabInfo(tabs[current_tab]);
         response(tabInfo);
-    }
-    else {
-        response({error: "No tab information!!"});
+    } else {
+        response({
+            error: "No tab information!!"
+        });
     }
 }
 
@@ -320,7 +376,7 @@ function getTabInfo(currTab) {
 
 function mergeGraphs(tab1, tab2) {
 
-    var tabInfo = {};              // Set up basic object
+    var tabInfo = {}; // Set up basic object
     tabInfo.id = tab1.id;
     tabInfo.graph = new Graph();
     tabInfo.graph._nodes = tab1.graph._nodes;
@@ -332,10 +388,10 @@ function mergeGraphs(tab1, tab2) {
     tabInfo.lastTitle = tab1.lastTitle;
 
 
-    var tab3 = getTabInfo(tab2);   // Recursing for each other tab's children
+    var tab3 = getTabInfo(tab2); // Recursing for each other tab's children
 
 
-    tab3.graph.forEachNode(function (node, id) {       // Add each node to parent graph
+    tab3.graph.forEachNode(function (node, id) { // Add each node to parent graph
         if (!tabInfo.graph.getNode(id)) {
             var newnode = tabInfo.graph.addNode(id);
             newnode.title = node.title;
@@ -405,7 +461,10 @@ function openSavedTab(id) {
                 tabInfo.lastTitle = thisGraph.lastTitle;
                 console.log('Constructed graph %j', tabInfo);
 
-                chrome.tabs.create({active: true, url: tabInfo.lastURL}, function (tab) {
+                chrome.tabs.create({
+                    active: true,
+                    url: tabInfo.lastURL
+                }, function (tab) {
                     tabs[tab.id] = tabInfo;
                     tabs[tab.id].graph.forEachNode(function (nodeObject, nodeid) {
                         nodeObject.tabId = tab.id;
@@ -439,8 +498,7 @@ function saveTab(tabId, note, tags) {
         var tabInfo = getTabInfo(tabs[tabId]);
 
         function populateDB(tx) {
-            tx.executeSql('INSERT INTO pathfinder (graphData, note,tags,created_time,no_of_pages) VALUES (?,?,?,?,?)',
-                [ JSON.stringify(tabInfo), note , tags, new Date(), tabInfo.graph.nodeSize]);
+            tx.executeSql('INSERT INTO pathfinder (graphData, note,tags,created_time,no_of_pages) VALUES (?,?,?,?,?)', [JSON.stringify(tabInfo), note, tags, new Date(), tabInfo.graph.nodeSize]);
         }
 
         db.transaction(populateDB, function (tx, err) {
@@ -469,9 +527,11 @@ function getSavedTabs(response) {
                 qResults.push(resultitem);
             }
 
-            chrome.runtime.sendMessage({request: 'savedTabresults', results: qResults},
-                function (response) {
-                });
+            chrome.runtime.sendMessage({
+                    request: 'savedTabresults',
+                    results: qResults
+                },
+                function (response) {});
 
             console.log("Returned results");
             return false;
@@ -626,6 +686,7 @@ function setLastUrl(message, tabId) {
 function openDB() {
 
     db = openDatabase('pathfinder_db', '1.0', 'Pathfinder DB', 10 * 1024 * 1024);
+
     function populateDB(tx) {
         //  tx.executeSql('DROP TABLE  pathfinder');
         tx.executeSql('CREATE TABLE IF NOT EXISTS pathfinder (id INTEGER PRIMARY KEY AUTOINCREMENT,graphData,note,tags,created_time,no_of_pages)');
