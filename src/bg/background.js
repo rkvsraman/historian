@@ -336,7 +336,7 @@ function addtoWords(message, sender) {
         
         if(tag.score > 1){
 
-         console.log(tag._term.toLowerCase());
+        // console.log(tag._term.toLowerCase());
         wordTrie.add(tag._term.toLowerCase());
         }
     }
