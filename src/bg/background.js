@@ -234,6 +234,14 @@ chrome.tabs.onUpdated.addListener(function (tabID, changeinfo, tab) {
                     console.log("Count not insert script %j", chrome.extension.lastError);
                 }
             });
+            
+          /*  chrome.tabs.executeScript(tabID, {
+                file: "src/bg/readability.js"
+            }, function () {
+                if (chrome.extension.lastError) {
+                    console.log("Count not insert script %j", chrome.extension.lastError);
+                }
+            });*/
         } else {
             console.log("No tab info found for id:" + tabID);
         }
@@ -310,6 +318,7 @@ function addtoWords(message, sender) {
     if (_.contains(urls, sender.url))
         return;
     urls.push(sender.url);
+    
     /*var tfidf = new natural.TfIdf();
     tfidf.addDocument(message.source, null);
     tfidf.listTerms(0).forEach(function (item) {
