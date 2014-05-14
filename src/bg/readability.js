@@ -14,6 +14,7 @@ var dbg = function (s) {
 var readStyle = "style-classy";
 var readMargin = "xx";
 var readSize = "xx";
+var docBody;
 var readability = {
     version: '0.5.1',
     emailSrc: 'http://lab.arc90.com/experiments/readability/email.php',
@@ -68,20 +69,20 @@ var readability = {
         readability.prepDocument();
 
         /* Build readability's DOM tree */
-        var overlay = document.createElement("DIV");
-        var innerDiv = document.createElement("DIV");
-     //   var articleTools = readability.getArticleTools();
-     //   var articleTitle = readability.getArticleTitle();
+       // var overlay = document.createElement("DIV");
+    //    var innerDiv = document.createElement("DIV");
+        //   var articleTools = readability.getArticleTools();
+        //   var articleTitle = readability.getArticleTitle();
         var articleContent = readability.grabArticle(preserveUnlikelyCandidates);
         //var articleFooter = readability.getArticleFooter();
 
-     
-        
-        
 
 
 
-       
+
+
+
+
         /**
          * If we attempted to strip unlikely candidates on the first run through, and we ended up with no content,
          * that may mean we stripped out the actual content so we couldn't parse it. So re-run init while preserving
@@ -95,21 +96,21 @@ var readability = {
                 articleContent.innerHTML = "<p>Sorry, readability was unable to parse this page for content. If you feel like it should have been able to, please <a href='http://code.google.com/p/arc90labs-readability/issues/entry'>let us know by submitting an issue.</a></p>";
             }
         }
-        
-        console.log("Article Content %j", articleContent);
-        
-       var html= readability.getTextNodes(articleContent);
-        
-        console.log("End HTML %j",html);
-         document.body.innerHTML = readability.bodyCache;
-        
+
+      //  console.log("Article Content %j", articleContent);
+
+        var html = readability.getTextNodes(articleContent);
+
+    //    console.log("End HTML %j", html);
+        document.body.innerHTML = readability.bodyCache;
+
         chrome.runtime.sendMessage({
             request: "getSource",
-            source:  html
+            source: html
         });
         return;
 
-     /*   overlay.id = "readOverlay";
+        /*   overlay.id = "readOverlay";
         innerDiv.id = "readInner";
 
          Apply user-selected styling 
@@ -224,6 +225,10 @@ var readability = {
          * In some cases a body element can't be found (if the HTML is totally hosed for example)
          * so we create a new body node and append it to the document.
          */
+
+
+
+
         if (document.body === null) {
             body = document.createElement("body");
             try {
@@ -232,6 +237,9 @@ var readability = {
                 document.documentElement.appendChild(body);
             }
         }
+        docBody = document.body;
+
+
 
         var frames = document.getElementsByTagName('frame');
         if (frames.length > 0) {
@@ -252,14 +260,15 @@ var readability = {
             }
 
             if (bestFrame) {
-                var newBody = document.createElement('body');
+                docBody = bestFrame.contentWindow.document.body.innerHTML
+                /*    var newBody = document.createElement('body');
                 newBody.innerHTML = bestFrame.contentWindow.document.body.innerHTML;
                 newBody.style.overflow = 'scroll';
                 document.body = newBody;
 
                 var frameset = document.getElementsByTagName('frameset')[0];
                 if (frameset)
-                    frameset.parentNode.removeChild(frameset);
+                    frameset.parentNode.removeChild(frameset);*/
 
                 readability.frameHack = true;
             }
@@ -267,27 +276,28 @@ var readability = {
 
         /* If we're using a typekit style, inject the JS for it. */
 
-        if (readStyle == "style-classy") {
+        /* if (readStyle == "style-classy") {
             var typeKitScript = document.createElement('script');
             typeKitScript.type = "text/javascript";
             typeKitScript.src = "http://use.typekit.com/sxt6vzy.js";
 
-            document.body.appendChild(typeKitScript);
+            document.body.appendChild(typeKitScript);*/
 
-            /**
-             * Done as a script elem so that it's ensured it will activate
-             * after typekit is loaded from the previous script src.
-             **/
-            var typeKitLoader = document.createElement('script');
+        /**
+         * Done as a script elem so that it's ensured it will activate
+         * after typekit is loaded from the previous script src.
+         **/
+        /*        var typeKitLoader = document.createElement('script');
             typeKitLoader.type = "text/javascript";
 
             var typeKitLoaderContent = document.createTextNode('try{Typekit.load();}catch(e){}');
             typeKitLoader.appendChild(typeKitLoaderContent);
             document.body.appendChild(typeKitLoader);
-        }
+        }*/
 
         /* remove all scripts that are not readability */
-        var scripts = document.getElementsByTagName('script');
+
+        var scripts = docBody.getElementsByTagName('script');
         for (i = scripts.length - 1; i >= 0; i--) {
             if (typeof (scripts[i].src) == "undefined" || scripts[i].src.indexOf('readability') == -1) {
                 scripts[i].parentNode.removeChild(scripts[i]);
@@ -295,21 +305,21 @@ var readability = {
         }
 
         /* remove all stylesheets */
-        for (var k = 0; k < document.styleSheets.length; k++) {
+        /*    for (var k = 0; k < document.styleSheets.length; k++) {
             if (document.styleSheets[k].href != null && document.styleSheets[k].href.lastIndexOf("readability") == -1) {
                 document.styleSheets[k].disabled = true;
             }
-        }
+        }*/
 
         /* Remove all style tags in head (not doing this on IE) - TODO: Why not? */
-        var styleTags = document.getElementsByTagName("style");
+        /*     var styleTags = document.getElementsByTagName("style");
         for (var j = 0; j < styleTags.length; j++)
             if (navigator.appName != "Microsoft Internet Explorer")
-                styleTags[j].textContent = "";
+                styleTags[j].textContent = "";*/
 
-            /* Turn all double br's into p's */
-            /* Note, this is pretty costly as far as processing goes. Maybe optimize later. */
-        document.body.innerHTML = document.body.innerHTML.replace(readability.regexps.replaceBrsRe, '</p><p>').replace(readability.regexps.replaceFontsRe, '<$1span>')
+        /* Turn all double br's into p's */
+        /* Note, this is pretty costly as far as processing goes. Maybe optimize later. */
+        docBody.innerHTML = docBody.innerHTML.replace(readability.regexps.replaceBrsRe, '</p><p>').replace(readability.regexps.replaceFontsRe, '<$1span>')
     },
 
     /**
@@ -424,7 +434,7 @@ var readability = {
          * TODO: Shouldn't this be a reverse traversal?
          **/
         for (var nodeIndex = 0;
-            (node = document.getElementsByTagName('*')[nodeIndex]); nodeIndex++) {
+            (node = docBody.getElementsByTagName('*')[nodeIndex]); nodeIndex++) {
             /* Remove unlikely candidates */
             if (!preserveUnlikelyCandidates) {
                 var unlikelyMatchString = node.className + node.id;
@@ -473,7 +483,7 @@ var readability = {
          *
          * A score is determined by things like number of commas, class names, etc. Maybe eventually link density.
          **/
-        var allParagraphs = document.getElementsByTagName("p");
+        var allParagraphs = docBody.getElementsByTagName("p");
         var candidates = [];
 
         for (var j = 0; j < allParagraphs.length; j++) {
@@ -537,9 +547,9 @@ var readability = {
          **/
         if (topCandidate == null || topCandidate.tagName == "BODY") {
             topCandidate = document.createElement("DIV");
-            topCandidate.innerHTML = document.body.innerHTML;
-            document.body.innerHTML = "";
-            document.body.appendChild(topCandidate);
+            topCandidate.innerHTML = docBody.innerHTML;
+           // document.body.innerHTML = "";
+        //    document.body.appendChild(topCandidate);
             readability.initializeNode(topCandidate);
         }
 
