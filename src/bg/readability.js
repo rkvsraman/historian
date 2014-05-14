@@ -69,8 +69,8 @@ var readability = {
         readability.prepDocument();
 
         /* Build readability's DOM tree */
-       // var overlay = document.createElement("DIV");
-    //    var innerDiv = document.createElement("DIV");
+        // var overlay = document.createElement("DIV");
+        //    var innerDiv = document.createElement("DIV");
         //   var articleTools = readability.getArticleTools();
         //   var articleTitle = readability.getArticleTitle();
         var articleContent = readability.grabArticle(preserveUnlikelyCandidates);
@@ -97,11 +97,11 @@ var readability = {
             }
         }
 
-      //  console.log("Article Content %j", articleContent);
+        //  console.log("Article Content %j", articleContent);
 
         var html = readability.getTextNodes(articleContent);
 
-    //    console.log("End HTML %j", html);
+        console.log("End HTML %j", html);
         document.body.innerHTML = readability.bodyCache;
 
         chrome.runtime.sendMessage({
@@ -548,8 +548,8 @@ var readability = {
         if (topCandidate == null || topCandidate.tagName == "BODY") {
             topCandidate = document.createElement("DIV");
             topCandidate.innerHTML = docBody.innerHTML;
-           // document.body.innerHTML = "";
-        //    document.body.appendChild(topCandidate);
+            // document.body.innerHTML = "";
+            //    document.body.appendChild(topCandidate);
             readability.initializeNode(topCandidate);
         }
 
@@ -561,41 +561,43 @@ var readability = {
         var articleContent = document.createElement("DIV");
         articleContent.id = "readability-content";
         var siblingScoreThreshold = Math.max(10, topCandidate.readability.contentScore * 0.2);
-        var siblingNodes = topCandidate.parentNode.childNodes;
-        for (var i = 0, il = siblingNodes.length; i < il; i++) {
-            var siblingNode = siblingNodes[i];
-            var append = false;
+        if (topCandidate && topCandidate.parentNode) {
+            var siblingNodes = topCandidate.parentNode.childNodes;
+            for (var i = 0, il = siblingNodes.length; i < il; i++) {
+                var siblingNode = siblingNodes[i];
+                var append = false;
 
-            dbg("Looking at sibling node: " + siblingNode + " (" + siblingNode.className + ":" + siblingNode.id + ")" + ((typeof siblingNode.readability != 'undefined') ? (" with score " + siblingNode.readability.contentScore) : ''));
-            dbg("Sibling has score " + (siblingNode.readability ? siblingNode.readability.contentScore : 'Unknown'));
+                dbg("Looking at sibling node: " + siblingNode + " (" + siblingNode.className + ":" + siblingNode.id + ")" + ((typeof siblingNode.readability != 'undefined') ? (" with score " + siblingNode.readability.contentScore) : ''));
+                dbg("Sibling has score " + (siblingNode.readability ? siblingNode.readability.contentScore : 'Unknown'));
 
-            if (siblingNode === topCandidate) {
-                append = true;
-            }
-
-            if (typeof siblingNode.readability != 'undefined' && siblingNode.readability.contentScore >= siblingScoreThreshold) {
-                append = true;
-            }
-
-            if (siblingNode.nodeName == "P") {
-                var linkDensity = readability.getLinkDensity(siblingNode);
-                var nodeContent = readability.getInnerText(siblingNode);
-                var nodeLength = nodeContent.length;
-
-                if (nodeLength > 80 && linkDensity < 0.25) {
-                    append = true;
-                } else if (nodeLength < 80 && linkDensity == 0 && nodeContent.search(/\.( |$)/) !== -1) {
+                if (siblingNode === topCandidate) {
                     append = true;
                 }
-            }
 
-            if (append) {
-                dbg("Appending node: " + siblingNode)
+                if (typeof siblingNode.readability != 'undefined' && siblingNode.readability.contentScore >= siblingScoreThreshold) {
+                    append = true;
+                }
 
-                /* Append sibling and subtract from our list because it removes the node when you append to another node */
-                articleContent.appendChild(siblingNode);
-                i--;
-                il--;
+                if (siblingNode.nodeName == "P") {
+                    var linkDensity = readability.getLinkDensity(siblingNode);
+                    var nodeContent = readability.getInnerText(siblingNode);
+                    var nodeLength = nodeContent.length;
+
+                    if (nodeLength > 80 && linkDensity < 0.25) {
+                        append = true;
+                    } else if (nodeLength < 80 && linkDensity == 0 && nodeContent.search(/\.( |$)/) !== -1) {
+                        append = true;
+                    }
+                }
+
+                if (append) {
+                    dbg("Appending node: " + siblingNode)
+
+                    /* Append sibling and subtract from our list because it removes the node when you append to another node */
+                    articleContent.appendChild(siblingNode);
+                    i--;
+                    il--;
+                }
             }
         }
 
