@@ -61,48 +61,18 @@ var readability = {
      * @return void
      **/
     init: function (preserveUnlikelyCandidates) {
-        preserveUnlikelyCandidates = (typeof preserveUnlikelyCandidates == 'undefined') ? false : preserveUnlikelyCandidates;
 
-        if (document.body && !readability.bodyCache)
-            readability.bodyCache = document.body.innerHTML;
+        if (!document.body)
+            return "";
+        preserveUnlikelyCandidates = (typeof preserveUnlikelyCandidates == 'undefined') ? false : preserveUnlikelyCandidates;
 
         readability.prepDocument();
 
-        /* Build readability's DOM tree */
-        // var overlay = document.createElement("DIV");
-        //    var innerDiv = document.createElement("DIV");
-        //   var articleTools = readability.getArticleTools();
-        //   var articleTitle = readability.getArticleTitle();
         var articleContent = readability.grabArticle(preserveUnlikelyCandidates);
-        //var articleFooter = readability.getArticleFooter();
-
-
-
-
-
-
-
-
-        /**
-         * If we attempted to strip unlikely candidates on the first run through, and we ended up with no content,
-         * that may mean we stripped out the actual content so we couldn't parse it. So re-run init while preserving
-         * unlikely candidates to have a better shot at getting our content out properly.
-         **/
-        if (readability.getInnerText(articleContent, false) == "") {
-            if (!preserveUnlikelyCandidates) {
-                document.body.innerHTML = readability.bodyCache;
-                return readability.init(true);
-            } else {
-                articleContent.innerHTML = "<p>Sorry, readability was unable to parse this page for content. If you feel like it should have been able to, please <a href='http://code.google.com/p/arc90labs-readability/issues/entry'>let us know by submitting an issue.</a></p>";
-            }
-        }
-
-        //  console.log("Article Content %j", articleContent);
 
         var html = readability.getTextNodes(articleContent);
 
         console.log("End HTML %j", html);
-        document.body.innerHTML = readability.bodyCache;
 
         chrome.runtime.sendMessage({
             request: "getSource",
@@ -110,39 +80,10 @@ var readability = {
         });
         return;
 
-        /*   overlay.id = "readOverlay";
-        innerDiv.id = "readInner";
 
-         Apply user-selected styling 
-        document.body.className = readStyle;
-        overlay.className = readStyle;
-        innerDiv.className = readMargin + " " + readSize;
-
-         Glue the structure of our document together. 
-        articleContent.appendChild(articleFooter);
-        innerDiv.appendChild(articleTitle);
-        innerDiv.appendChild(articleContent);
-        overlay.appendChild(articleTools);
-        overlay.appendChild(innerDiv);
-
-         Clear the old HTML, insert the new content. 
-        document.body.innerHTML = "";
-        document.body.insertBefore(overlay, document.body.firstChild);
-
-        if (readability.frameHack) {
-            var readOverlay = document.getElementById('readOverlay');
-            readOverlay.style.height = '100%';
-            readOverlay.style.overflow = 'auto';
-        }*/
 
     },
 
-    /**
-	 * Get the article tools Element that has buttons like reload, print, email.
-	 *
-	 * @return void
-     
-	 **/
 
     getTextNodes: function (document_root) {
 
@@ -166,6 +107,13 @@ var readability = {
 
     },
 
+
+    /**
+	 * Get the article tools Element that has buttons like reload, print, email.
+	 *
+	 * @return void
+
+	 **/
     getArticleTools: function () {
         var articleTools = document.createElement("DIV");
 
@@ -228,20 +176,11 @@ var readability = {
 
 
 
-
-        if (document.body === null) {
-            body = document.createElement("body");
-            try {
-                document.body = body;
-            } catch (e) {
-                document.documentElement.appendChild(body);
-            }
-        }
-        docBody = document.body;
+        docBody = document.importNode(document.body, true);
 
 
 
-        var frames = document.getElementsByTagName('frame');
+        var frames = docBody.getElementsByTagName('frame');
         if (frames.length > 0) {
             var bestFrame = null;
             var bestFrameSize = 0;
@@ -260,40 +199,12 @@ var readability = {
             }
 
             if (bestFrame) {
-                docBody = bestFrame.contentWindow.document.body.innerHTML
-                /*    var newBody = document.createElement('body');
-                newBody.innerHTML = bestFrame.contentWindow.document.body.innerHTML;
-                newBody.style.overflow = 'scroll';
-                document.body = newBody;
-
-                var frameset = document.getElementsByTagName('frameset')[0];
-                if (frameset)
-                    frameset.parentNode.removeChild(frameset);*/
-
+                docBody = document.importNode(bestFrame.contentWindow.document.body, true);
                 readability.frameHack = true;
             }
         }
 
-        /* If we're using a typekit style, inject the JS for it. */
 
-        /* if (readStyle == "style-classy") {
-            var typeKitScript = document.createElement('script');
-            typeKitScript.type = "text/javascript";
-            typeKitScript.src = "http://use.typekit.com/sxt6vzy.js";
-
-            document.body.appendChild(typeKitScript);*/
-
-        /**
-         * Done as a script elem so that it's ensured it will activate
-         * after typekit is loaded from the previous script src.
-         **/
-        /*        var typeKitLoader = document.createElement('script');
-            typeKitLoader.type = "text/javascript";
-
-            var typeKitLoaderContent = document.createTextNode('try{Typekit.load();}catch(e){}');
-            typeKitLoader.appendChild(typeKitLoaderContent);
-            document.body.appendChild(typeKitLoader);
-        }*/
 
         /* remove all scripts that are not readability */
 
@@ -304,18 +215,7 @@ var readability = {
             }
         }
 
-        /* remove all stylesheets */
-        /*    for (var k = 0; k < document.styleSheets.length; k++) {
-            if (document.styleSheets[k].href != null && document.styleSheets[k].href.lastIndexOf("readability") == -1) {
-                document.styleSheets[k].disabled = true;
-            }
-        }*/
 
-        /* Remove all style tags in head (not doing this on IE) - TODO: Why not? */
-        /*     var styleTags = document.getElementsByTagName("style");
-        for (var j = 0; j < styleTags.length; j++)
-            if (navigator.appName != "Microsoft Internet Explorer")
-                styleTags[j].textContent = "";*/
 
         /* Turn all double br's into p's */
         /* Note, this is pretty costly as far as processing goes. Maybe optimize later. */
@@ -652,7 +552,9 @@ var readability = {
      * @return void
      **/
     cleanStyles: function (e) {
-        e = e || document;
+        if (!e)
+            return;
+        //e = e || document;
         var cur = e.firstChild;
 
         if (!e)
@@ -861,7 +763,7 @@ var readability = {
         emailContainer.setAttribute('id', 'email-container');
         emailContainer.innerHTML = '<iframe src="' + readability.emailSrc + '?pageUrl=' + escape(window.location) + '&pageTitle=' + escape(document.title) + '" scrolling="no" onload="readability.removeFrame()" style="width:500px; height: 490px; border: 0;"></iframe>';
 
-        document.body.appendChild(emailContainer);
+        // document.body.appendChild(emailContainer);
     },
 
     /**
@@ -879,7 +781,7 @@ var readability = {
         kindleContainer.setAttribute('id', 'kindle-container');
         kindleContainer.innerHTML = '<iframe id="readabilityKindleIframe" name="readabilityKindleIframe" scrolling="no" onload="readability.removeFrame()" style="width:500px; height: 490px; border: 0;"></iframe>';
 
-        document.body.appendChild(kindleContainer);
+        //  document.body.appendChild(kindleContainer);
 
         /* Dynamically create a form to be POSTed to the iframe */
         var formHtml = '<form id="readabilityKindleForm" style="display: none;" target="readabilityKindleIframe" method="post" action="' + readability.kindleSrc + '">\
@@ -888,8 +790,8 @@ var readability = {
 <input type="hidden" name="pageTitle" id="pageUrl" value="' + readability.htmlspecialchars(document.title) + '" />\
 </form>';
 
-        document.body.innerHTML += formHtml;
-        document.forms['readabilityKindleForm'].submit();
+        //   document.body.innerHTML += formHtml;
+        // document.forms['readabilityKindleForm'].submit();
     },
 
     /**
