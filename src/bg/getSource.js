@@ -1,11 +1,11 @@
 function insertButton() {
 
-    alert("button called");
+  
     var button = document.createElement('button');
-    button.setAttribute('class', 'btn btn-lg btn-info toolfixed');
+    button.setAttribute('class', 'toolfixed');
 
     var bImg = document.createElement('img');
-    bImg.setAttribute('src', chrome.extension.getURL('icons/icon48.png'));
+    bImg.setAttribute('src', chrome.extension.getURL('icons/icon16.png'));
     button.appendChild(bImg);
 
     document.body.appendChild(button)
@@ -54,4 +54,4 @@ function loadScriptsAndCSS() {
         }, 1);
     }, 1);   
 }
-loadScriptsAndCSS();
+//loadScriptsAndCSS();
