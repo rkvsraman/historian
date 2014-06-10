@@ -242,6 +242,14 @@ chrome.tabs.onUpdated.addListener(function (tabID, changeinfo, tab) {
                     console.log("Count not insert script %j", chrome.extension.lastError);
                 }
             });
+            
+            chrome.tabs.executeScript(tabID, {
+                file: "src/bg/getSource.js"
+            }, function () {
+                if (chrome.extension.lastError) {
+                    console.log("Count not insert script %j", chrome.extension.lastError);
+                }
+            });
         } else {
             console.log("No tab info found for id:" + tabID);
         }
@@ -276,7 +284,7 @@ chrome.omnibox.onInputChanged.addListener(
     function (text, suggest) {
        // console.log('inputChanged: ' + text);
 
-        var arr = wordTrie.wordsWithPrefix(text);
+        var arr = wordTrie.wordsWithPrefix(text.toLowerCase());
 
         var suggestArr = [];
         for (var i = 0; i < arr.length; i++) {
@@ -319,37 +327,16 @@ function addtoWords(message, sender) {
         return;
     urls.push(sender.url);
     
-    /*var tfidf = new natural.TfIdf();
-    tfidf.addDocument(message.source, null);
-    tfidf.listTerms(0).forEach(function (item) {
-        if (item.tfidf > 1) {
-            var word = words.getNode(item.term);
-            if (word) {
-                word.urls.push(sender.url);
-                word.count++;
-
-            }
-            else {
-                word = words.addNode(item.term);
-                word.urls = [];
-                word.urls.push(sender.url);
-                word.count = 1;
-            }
-        }
-
-
-    }); */
+   
     var tagSet = autotags.analyzeText(message.source, 1000);
     for (var t in tagSet.tags) {
         var tag = tagSet.tags[t];
         
-        if(tag.score > 1){
-
-        // console.log(tag._term.toLowerCase());
+        if(tag.score > 1){       
         wordTrie.add(tag._term.toLowerCase());
         }
     }
-    //console.log('%j', tag);
+   
 }
 
 

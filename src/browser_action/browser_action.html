@@ -1,43 +1,48 @@
 <!doctype html>
 <html ng-app="Pathfinder">
+
 <head>
     <link rel="stylesheet" href="css/main.css">
     <link rel="stylesheet" href="../../bootstrap/css/bootstrap.css">
 
 </head>
+
 <body id="mainPopup" ng-controller="SuperCtrl">
-<nav class="navbar navbar-fixed-top whitebackground" role="navigation">
-    <div class="container">
-        <div class="row">
-            <h2 class="span4"><img src="../../icons/icon48.png" class="img-rounded" title="Pathfinder"> Pathfinder</h2>
-            <a class="btn btn-sm btn-info span3 " href="#/">Current</a>
-            <a class="btn btn-sm btn-info span3 " href="#/closed">Closed</a>
-            <a class="btn btn-sm btn-info span3 " href="#/saved">Saved</a>
-            <a class="btn btn-sm btn-info span3 " ng-click="saveTab()">Save current tab</a>
-            <a class="btn btn-sm btn-info span3 " href="#/global">All open tabs</a>
+    <nav class="navbar navbar-fixed-top whitebackground" role="navigation">
+        <div class="container">
+            <div class="row">
+                <h2 class="span4"><img src="../../icons/icon48.png" class="img-rounded" title="Pathfinder"> Pathfinder</h2>
+                <a class="btn btn-sm btn-info span3 " href="#/">Current</a>
+                <a class="btn btn-sm btn-info span3 " href="#/closed">Closed</a>
+                <a class="btn btn-sm btn-info span3 " href="#/saved">Saved</a>
+                <a class="btn btn-sm btn-info span3 " ng-click="saveTab()">Save current tab</a>
+                <a class="btn btn-sm btn-info span3 " href="#/global">All open tabs</a>
+
+            </div>
 
         </div>
-
+    </nav>
+    <button class="btn btn-lg btn-info"><span class=""></span></button>
+    <div class="container toppadding">
+        <div class="row" ng-view=""></div>
     </div>
-</nav>
-<div class="container toppadding">
-    <div class="row" ng-view=""></div>
-</div>
-<script src="../../js/jquery/jquery.js"></script>
-<script src="../../bootstrap/js/bootstrap.js"></script>
-<script src="../../js/angular/angular.js"></script>
-<script src="../../js/angular/angular-route.js"></script>
-<script src="../../js/utils/arbor.js"></script>
-<script src="../../js/utils/arbor-tween.js"></script>
-<script src="../../js/utils/arbor-graphics.js"></script>
-<script src="../../js/d3/d3.js"></script>
-<script src="../../js/d3/d3.layout.cloud.js"></script>
-<script src="browser_action.js"></script>
-<script src="js/CloudCtrl.js"></script>
-<script src="js/SuperCtrl.js"></script>
-<script src="js/WelcomeCtrl.js"></script>
-<script src="js/GlobalCtrl.js"></script>
-<script src="js/ClosedCtrl.js"></script>
-<script src="js/SavedCtrl.js"></script>
+    <script src="../../js/jquery/jquery.js"></script>
+    <script src="../../bootstrap/js/bootstrap.js"></script>
+    <script src="../../js/angular/angular.js"></script>
+    <script src="../../js/angular/angular-route.js"></script>
+    <script src="../../js/utils/arbor.js"></script>
+    <script src="../../js/utils/arbor-tween.js"></script>
+    <script src="../../js/utils/arbor-graphics.js"></script>
+    <script src="../../js/d3/d3.js"></script>
+    <script src="../../js/d3/d3.layout.cloud.js"></script>
+    <script src="../../js/utils/cytoscape.js"></script>
+    <script src="browser_action.js"></script>
+    <script src="js/CloudCtrl.js"></script>
+    <script src="js/SuperCtrl.js"></script>
+    <script src="js/WelcomeCtrl.js"></script>
+    <script src="js/GlobalCtrl.js"></script>
+    <script src="js/ClosedCtrl.js"></script>
+    <script src="js/SavedCtrl.js"></script>
 </body>
+
 </html>

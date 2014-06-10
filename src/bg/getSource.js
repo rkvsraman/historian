@@ -1,81 +1,57 @@
-/*function DOMtoString(document_root) {
- var html = '',
- node = document_root.firstChild;
- while (node) {
- switch (node.nodeType) {
- case Node.ELEMENT_NODE:
- html += node.outerHTML;
- break;
- case Node.TEXT_NODE:
- html += node.nodeValue;
- break;
- case Node.CDATA_SECTION_NODE:
- html += '<![CDATA[' + node.nodeValue + ']]>';
- break;
- case Node.COMMENT_NODE:
- html += '<!--' + node.nodeValue + '-->';
- break;
- case Node.DOCUMENT_TYPE_NODE:
- // (X)HTML documents are identified by public identifiers
- html += "<!DOCTYPE " + node.name + (node.publicId ? ' PUBLIC "' + node.publicId + '"' : '') + (!node.publicId && node.systemId ? ' SYSTEM' : '') + (node.systemId ? ' "' + node.systemId + '"' : '') + '>\n';
- break;
- }
- node = node.nextSibling;
- }
- return html;
- }
+function insertButton() {
 
- chrome.runtime.sendMessage({
- request: "getSource",
- source: DOMtoString(document).replace(/<script.*>.*<\/script>/gi, " ")
- });*/
+    alert("button called");
+    var button = document.createElement('button');
+    button.setAttribute('class', 'btn btn-lg btn-info toolfixed');
 
-function getTextNodes(document_root) {
+    var bImg = document.createElement('img');
+    bImg.setAttribute('src', chrome.extension.getURL('icons/icon48.png'));
+    button.appendChild(bImg);
 
-    var html = '';
-
-    var treewalker = document.createTreeWalker(document_root.body, NodeFilter.SHOW_TEXT,
-        {
-            acceptNode: function (node) {
-                if (node.parentNode && node.parentNode.nodeName.toLowerCase() !== 'script' &&
-                    node.parentNode.nodeName.toLowerCase() !== 'style'
-                    && node.parentNode.nodeName.toLowerCase() !== 'noscript') {
-                    return NodeFilter.FILTER_ACCEPT;
-                }
-                else
-                    return NodeFilter.FILTER_SKIP;
-            }
-        }, false);
-
-    while (treewalker.nextNode())  {
-        html += ' ';
-        html += treewalker.currentNode.nodeValue;
-    }
-    return html;
-
+    document.body.appendChild(button)
 }
 
-function insertButton(){
+function loadScriptsAndCSS() {
 
-    /*var jq = document.createElement("script");
-    jq.setAttribute('src','../../js/jquery/jquery.js');
-    var  slidepanel = document.createElement('script');
-    slidepanel.setAttribute('src','../../js/jquery/jquery.slidepanel.js' );
+    var jqcss = document.createElement('link');
+    jqcss.setAttribute('href', chrome.extension.getURL('css/jquery.toolbars.css'));
+    jqcss.setAttribute('rel', 'stylesheet');
+
+    var buttoncss = document.createElement('link');
+    buttoncss.setAttribute('href', chrome.extension.getURL('css/bootstrap.icons.css'));
+    buttoncss.setAttribute('rel', 'stylesheet');
+
+    var bootstrapcss = document.createElement('link');
+    bootstrapcss.setAttribute('href', chrome.extension.getURL('bootstrap/css/bootstrap.css'));
+    bootstrapcss.setAttribute('rel', 'stylesheet');
+
+    var customcss = document.createElement('link');
+    customcss.setAttribute('href', chrome.extension.getURL('bootstrap/css/custom.css'));
+    customcss.setAttribute('rel', 'stylesheet');
+
+    document.head.appendChild(jqcss);
+    document.head.appendChild(buttoncss);
+    document.head.appendChild(bootstrapcss);
+    document.head.appendChild(customcss);
 
 
-    var button = document.createElement("button");
-    button.innerHTML = "Clickme";
-    var width  = window.innerWidth -150
-    var height = (window.innerHeight/2)-150;
-    button.setAttribute('style','position:fixed;width:70;' +
-        '-webkit-transform: rotate(-90deg);left:'+width + ';top:'+height);
-    document.body.appendChild(button);*/
+    var jq = document.createElement('script');
+    jq.setAttribute('src', chrome.extension.getURL('js/jquery/jquery.js'));
+    document.body.appendChild(jq);
+    setTimeout(function () {
+
+        var slidepanel = document.createElement('script');
+        slidepanel.setAttribute('src', chrome.extension.getURL('js/jquery/jquery.toolbar.js'));
+        document.body.appendChild(slidepanel);
+        setTimeout(function () {
+
+            var bootstrap = document.createElement('script');
+            bootstrap.setAttribute('src', chrome.extension.getURL('bootstrap/js/bootstrap.js'));
+            document.body.appendChild(bootstrap);
+            setTimeout(function () {
+                insertButton();
+            }, 1);
+        }, 1);
+    }, 1);   
 }
-//insertButton();
-
-chrome.runtime.sendMessage({
-    request: "getSource",
-    source: getTextNodes(document)
-});
-
-
+loadScriptsAndCSS();

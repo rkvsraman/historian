@@ -1,8 +1,8 @@
 {
-    "name": "Pathfinder",
+    "name": "Historian",
     "version": "0.0.1",
     "manifest_version": 2,
-    "description": "This extension shows a visual path of your browsing activity on each tab",
+    "description": "History on steroids",
     "homepage_url": "http://sites.google.com/site/rkvsraman",
     "omnibox": { "keyword" : "hi" },
     "icons": {
@@ -19,7 +19,7 @@
     "content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self'",
     "browser_action": {
         "default_icon": "icons/icon19.png",
-        "default_title": "Pathfinder",
+        "default_title": "Historian",
         "default_popup": "src/browser_action/browser_action.html"
     },
     "permissions": [
@@ -28,7 +28,16 @@
         "unlimitedStorage",
         "http://*/*",
         "https://*/*"
+    ],
+    "web_accessible_resources": [
+        "js/*.js",
+        "css/*.css",
+        "css/*.png",
+        "bootstrap/*",
+        "icons/*"
+        
     ]
+    
 
 
 
