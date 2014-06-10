@@ -8,7 +8,7 @@ function insertButton() {
     bImg.setAttribute('src', chrome.extension.getURL('icons/icon16.png'));
     button.appendChild(bImg);
 
-    document.body.appendChild(button)
+    document.body.appendChild(button);
 }
 
 function loadScriptsAndCSS() {
