@@ -54,4 +54,50 @@ function loadScriptsAndCSS() {
         }, 1);
     }, 1);   
 }
+
+function loadAsync(){
+    
+     var async = document.createElement('script'); 
+     async.setAttribute('src', chrome.extension.getURL('js/utils/async.js'));
+     document.body.appendChild(async);
+    setTimeout(function(){
+        
+        loadCSS();
+    
+    },1);
+    
+}
+
+function loadCSS(){
+ 
+    var listofCSS = [
+        'css/jquery.toolbars.css'
+        'css/bootstrap.icons.css'
+        'bootstrap/css/bootstrap.css'
+        'bootstrap/css/custom.css'
+    ]
+    
+    async.eachSeries(listofCSS,function(item,callback){
+        
+        var css = document.createElement('link');
+        css.setAttribute('href', chrome.extension.getURL(item));
+        css.setAttribute('rel', 'stylesheet');
+         document.head.appendChild(css);
+        callback();
+        
+        
+    },function(err){
+    
+        if(err){
+            console.log('CSSes not loaded');
+            
+        }
+        else
+            console.log('CSSes loaded');
+    });
+
+}
+    
+
+loadAsync();
 //loadScriptsAndCSS();
