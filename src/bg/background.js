@@ -227,14 +227,14 @@ chrome.tabs.onUpdated.addListener(function (tabID, changeinfo, tab) {
                 tabInfo.lastTitle = tab.title
             }
 
-        /*    chrome.tabs.executeScript(tabID, {
+                chrome.tabs.executeScript(tabID, {
                 file: "src/bg/getSource.js"
             }, function () {
                 if (chrome.extension.lastError) {
                     console.log("Count not insert script %j", chrome.extension.lastError);
                 }
-            });*/
-            
+            });
+
             chrome.tabs.executeScript(tabID, {
                 file: "src/bg/readability.js"
             }, function () {
@@ -242,14 +242,14 @@ chrome.tabs.onUpdated.addListener(function (tabID, changeinfo, tab) {
                     console.log("Count not insert script %j", chrome.extension.lastError);
                 }
             });
-            
-            chrome.tabs.executeScript(tabID, {
+
+            /*    chrome.tabs.executeScript(tabID, {
                 file: "src/bg/getSource.js"
             }, function () {
                 if (chrome.extension.lastError) {
                     console.log("Count not insert script %j", chrome.extension.lastError);
                 }
-            });
+            });*/
         } else {
             console.log("No tab info found for id:" + tabID);
         }
@@ -282,7 +282,7 @@ chrome.tabs.onRemoved.addListener(function (tabId, removeInfo) {
 
 chrome.omnibox.onInputChanged.addListener(
     function (text, suggest) {
-       // console.log('inputChanged: ' + text);
+        // console.log('inputChanged: ' + text);
 
         var arr = wordTrie.wordsWithPrefix(text.toLowerCase());
 
@@ -290,7 +290,7 @@ chrome.omnibox.onInputChanged.addListener(
         for (var i = 0; i < arr.length; i++) {
             suggestArr.push({
                 content: arr[i],
-                description:'Search in google for:'+ arr[i]
+                description: 'Search in google for:' + arr[i]
             });
 
         }
@@ -326,17 +326,17 @@ function addtoWords(message, sender) {
     if (_.contains(urls, sender.url))
         return;
     urls.push(sender.url);
-    
-   
+
+
     var tagSet = autotags.analyzeText(message.source, 1000);
     for (var t in tagSet.tags) {
         var tag = tagSet.tags[t];
-        
-        if(tag.score > 1){       
-        wordTrie.add(tag._term.toLowerCase());
+
+        if (tag.score > 1) {
+            wordTrie.add(tag._term.toLowerCase());
         }
     }
-   
+
 }
 
 

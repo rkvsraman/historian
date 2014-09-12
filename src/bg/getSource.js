@@ -12,16 +12,18 @@ function insertButton() {
     document.body.appendChild(button);
 
 
-    document.body.innerHTML += '<div id="user-toolbar-options"><a href="#"><i class="icon-user"></i></a><a href="#"><i class="icon-star"></i></a><a href="#"><i class="icon-edit"></i></a><a href="#"><i class="icon-delete"></i></a><a href="#"><i class="icon-ban"></i></a></div>';
+ 
 }
 
 $(document).ready(function () {
 
 
-    insertButton();
+   // insertButton();
+    
+      // document.body.innerHTML += '<div id="user-toolbar-options"><a href="#"><i class="icon-user"></i></a><a href="#"><i class="icon-star"></i></a><a href="#"><i class="icon-edit"></i></a><a href="#"><i class="icon-delete"></i></a><a href="#"><i class="icon-ban"></i></a></div>';
 
-    $('#hoverButton').toolbar({
+   /* $('#hoverButton').toolbar({
         content: '#user-toolbar-options',
-        position: 'bottom'
-    });
+        position: 'top'
+    });*/
 });

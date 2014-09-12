@@ -27,7 +27,7 @@
         {
             "matches": ["http://*/*", "https://*/*"],
             "css": ["css/jquery.toolbars.css", "css/bootstrap.icons.css", "bootstrap/css/custom.css"],
-            "js": ["js/utils/async.js", "js/jquery/jquery.js", "js/jquery/jquery.toolbar.js", "bootstrap/js/bootstrap.js"]
+            "js": ["js/utils/async.js", "js/utils/diffDOM.js","js/jquery/jquery.js", "js/jquery/jquery.toolbar.js", "bootstrap/js/bootstrap.js"]
 
     }
   ],

@@ -1,7 +1,19 @@
 var dbg = function (s) {
-    //  if(typeof console !== 'undefined')
-    //     console.log("Readability: " + s);
+     // if(typeof console !== 'undefined')
+       //  console.log("Readability: " + s);
 };
+
+var printNode = function(node){
+    
+    if(node)
+    {
+        console.log(node.nodeType);
+        console.log(node.nodeName);
+        if(node.nodeValue){
+            console.log(node.nodeValue);
+        }
+    }
+}
 
 /*
  * Readability. An Arc90 Lab Experiment.
@@ -14,7 +26,9 @@ var dbg = function (s) {
 var readStyle = "style-classy";
 var readMargin = "xx";
 var readSize = "xx";
+var forDiff;
 var docBody;
+var diff = new diffDOM(true,20);
 var readability = {
     version: '0.5.1',
     emailSrc: 'http://lab.arc90.com/experiments/readability/email.php',
@@ -67,12 +81,20 @@ var readability = {
         preserveUnlikelyCandidates = (typeof preserveUnlikelyCandidates == 'undefined') ? false : preserveUnlikelyCandidates;
 
         readability.prepDocument();
+        
+        
+       // console.log('Diff after prep '+JSON.stringify(  diff.diff(forDiff,docBody)));
+        
+        
+        //console.log('Docbody after prepdoc %j' , docBody);
 
         var articleContent = readability.grabArticle(preserveUnlikelyCandidates);
+        
+      //  console.log( 'Before gettextodes %j',articleContent);
 
         var html = readability.getTextNodes(articleContent);
 
-        console.log("End HTML %j", html);
+        //console.log("End HTML %j", html);
 
         chrome.runtime.sendMessage({
             request: "getSource",
@@ -176,6 +198,7 @@ var readability = {
 
 
 
+        forDiff = document.importNode(document.body,true);
         docBody = document.importNode(document.body, true);
 
 
@@ -203,6 +226,11 @@ var readability = {
                 readability.frameHack = true;
             }
         }
+        else
+        {
+            console.log('No frames detected');
+        }
+        
 
 
 
@@ -335,6 +363,9 @@ var readability = {
          **/
         for (var nodeIndex = 0;
             (node = docBody.getElementsByTagName('*')[nodeIndex]); nodeIndex++) {
+            
+       //  console.log('Printing node %j',node);
+            
             /* Remove unlikely candidates */
             if (!preserveUnlikelyCandidates) {
                 var unlikelyMatchString = node.className + node.id;
