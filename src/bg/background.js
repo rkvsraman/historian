@@ -227,7 +227,7 @@ chrome.tabs.onUpdated.addListener(function (tabID, changeinfo, tab) {
                 tabInfo.lastTitle = tab.title
             }
 
-                chrome.tabs.executeScript(tabID, {
+        /*        chrome.tabs.executeScript(tabID, {
                 file: "src/bg/getSource.js"
             }, function () {
                 if (chrome.extension.lastError) {
@@ -241,7 +241,7 @@ chrome.tabs.onUpdated.addListener(function (tabID, changeinfo, tab) {
                 if (chrome.extension.lastError) {
                     console.log("Count not insert script %j", chrome.extension.lastError);
                 }
-            });
+            });*/
 
             /*    chrome.tabs.executeScript(tabID, {
                 file: "src/bg/getSource.js"

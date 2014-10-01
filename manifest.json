@@ -21,17 +21,6 @@
 
 
 
-
-
-    "content_scripts": [
-        {
-            "matches": ["http://*/*", "https://*/*"],
-            "css": ["css/jquery.toolbars.css", "css/bootstrap.icons.css", "bootstrap/css/custom.css"],
-            "js": ["js/utils/async.js", "js/utils/diffDOM.js","js/jquery/jquery.js", "js/jquery/jquery.toolbar.js", "bootstrap/js/bootstrap.js"]
-
-    }
-  ],
-
     "content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self'",
     "browser_action": {
         "default_icon": "icons/icon19.png",
@@ -45,6 +34,7 @@
         "http://*/*",
         "https://*/*"
     ],
+    "options_page": "src/options_custom/index.html",
     "web_accessible_resources": [
         "js/*.js",
         "css/*.css",
