@@ -1,29 +1,32 @@
-function insertButton() {
 
 
-    var button = document.createElement('button');
-    button.setAttribute('class', 'toolfixed');
-    button.setAttribute('id', 'hoverButton');
+function getTextNodes(document_root) {
+//console.log('Get source called');
+    var html = '';
 
-    var bImg = document.createElement('img');
-    bImg.setAttribute('src', chrome.extension.getURL('icons/icon16.png'));
-    button.appendChild(bImg);
+    var treewalker = document.createTreeWalker(document_root.body, NodeFilter.SHOW_TEXT,
+        {
+            acceptNode: function (node) {
+                if (node.parentNode && node.parentNode.nodeName.toLowerCase() !== 'script' &&
+                    node.parentNode.nodeName.toLowerCase() !== 'style'
+                    && node.parentNode.nodeName.toLowerCase() !== 'noscript') {
+                    return NodeFilter.FILTER_ACCEPT;
+                }
+                else
+                    return NodeFilter.FILTER_SKIP;
+            }
+        }, false);
 
-    document.body.appendChild(button);
+    while (treewalker.nextNode())
+        html += ' ' + treewalker.currentNode.nodeValue;
+    
+  //  console.log(html);
+    return html;
 
-
- 
 }
 
-$(document).ready(function () {
-
-
-   // insertButton();
-    
-      // document.body.innerHTML += '<div id="user-toolbar-options"><a href="#"><i class="icon-user"></i></a><a href="#"><i class="icon-star"></i></a><a href="#"><i class="icon-edit"></i></a><a href="#"><i class="icon-delete"></i></a><a href="#"><i class="icon-ban"></i></a></div>';
-
-   /* $('#hoverButton').toolbar({
-        content: '#user-toolbar-options',
-        position: 'top'
-    });*/
+chrome.runtime.sendMessage({
+    request: "getSource",
+    source: getTextNodes(document)
 });
+

@@ -319,6 +319,8 @@ function addtoWords(message, sender) {
         var tag = tagSet.tags[t];
 
         if (tag.score > 1) {
+            
+       // console.log('Adding tag '+ tag._term.toLowerCase());
             wordTrie.add(tag._term.toLowerCase());
         }
     }
