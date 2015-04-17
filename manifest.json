@@ -34,7 +34,7 @@
         "http://*/*",
         "https://*/*"
     ],
-    "options_page": "src/options_custom/index.html",
+  
     "web_accessible_resources": [
         "js/*.js",
         "css/*.css",

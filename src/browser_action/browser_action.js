@@ -4,11 +4,7 @@ var pathfinder = angular.module('Pathfinder', ['ngRoute']);
 pathfinder.config(['$routeProvider',
     function ($routeProvider) {
 
-        $routeProvider.
-            when('/cloud', {
-                templateUrl: 'partials/cloud.html',
-                controller: 'CloudCtrl'
-            });
+       
 
         $routeProvider.
             when('/', {
