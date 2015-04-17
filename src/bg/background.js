@@ -227,7 +227,7 @@ chrome.tabs.onUpdated.addListener(function (tabID, changeinfo, tab) {
                 tabInfo.lastTitle = tab.title
             }
 
-        /*        chrome.tabs.executeScript(tabID, {
+           chrome.tabs.executeScript(tabID, {
                 file: "src/bg/getSource.js"
             }, function () {
                 if (chrome.extension.lastError) {
@@ -235,21 +235,7 @@ chrome.tabs.onUpdated.addListener(function (tabID, changeinfo, tab) {
                 }
             });
 
-            chrome.tabs.executeScript(tabID, {
-                file: "src/bg/readability.js"
-            }, function () {
-                if (chrome.extension.lastError) {
-                    console.log("Count not insert script %j", chrome.extension.lastError);
-                }
-            });*/
-
-            /*    chrome.tabs.executeScript(tabID, {
-                file: "src/bg/getSource.js"
-            }, function () {
-                if (chrome.extension.lastError) {
-                    console.log("Count not insert script %j", chrome.extension.lastError);
-                }
-            });*/
+        
         } else {
             console.log("No tab info found for id:" + tabID);
         }
