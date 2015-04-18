@@ -157,6 +157,12 @@ chrome.tabs.onUpdated.addListener(function (tabID, changeinfo, tab) {
 
     if (changeinfo.status === 'loading') {
         var tabInfo = tabs[tabID];
+        if(!tabInfo)
+        {
+            createNewTab(tab,false);
+            tabInfo = tabs[tabID];
+        }
+        
         if (tabInfo) {
             console.log("Tab id:" + tabID + " last_url:" + tabInfo.lastURL);
             if (tabInfo.lastURL === 'emptyurl') {
