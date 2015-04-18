@@ -7,15 +7,6 @@ var db;
 
 var initialTabsLoaded = false;
 var Graph = require('data-structures').Graph;
-var Trie = require('data-structures').Trie;
-
-var words = new Graph();
-var wordTrie = new Trie();
-var autotags = new AUTOTAGS.createTagger({});
-autotags.COMPOUND_TAG_SEPARATOR = ' ';
-autotags.NGRAM_BASED_ON_CAPITALISATION_BOOST = 7;
-autotags.BIGRAM_BOOST = 5;
-
 var urls = [];
 
 
@@ -114,17 +105,7 @@ chrome.runtime.onMessage.addListener(function (message, sender, response) {
             success: true
         });
     }
-    if (message.request === 'getSource') {
-        //console.log("Message source " + analyze_web_text(message.source));
-
-        addtoWords(message, sender);
-
-        response({
-            success: true
-        });
-
-
-    }
+    
 
     if (message.request === 'saveTab') {
 
@@ -226,17 +207,8 @@ chrome.tabs.onUpdated.addListener(function (tabID, changeinfo, tab) {
                 destNode.title = tab.title;
                 tabInfo.lastTitle = tab.title
             }
-
-           chrome.tabs.executeScript(tabID, {
-                file: "src/bg/getSource.js"
-            }, function () {
-                if (chrome.extension.lastError) {
-                    console.log("Count not insert script %j", chrome.extension.lastError);
-                }
-            });
-
-        
-        } else {
+            
+            } else {
             console.log("No tab info found for id:" + tabID);
         }
     }
@@ -266,32 +238,7 @@ chrome.tabs.onRemoved.addListener(function (tabId, removeInfo) {
 });
 
 
-chrome.omnibox.onInputChanged.addListener(
-    function (text, suggest) {
-        // console.log('inputChanged: ' + text);
 
-        var arr = wordTrie.wordsWithPrefix(text.toLowerCase());
-
-        var suggestArr = [];
-        for (var i = 0; i < arr.length; i++) {
-            suggestArr.push({
-                content: arr[i],
-                description: 'Search in google for:' + arr[i]
-            });
-
-        }
-        suggest(suggestArr);
-    });
-
-chrome.omnibox.onInputEntered.addListener(
-    function (text) {
-        // console.log('inputEntered: ' + text);
-        chrome.tabs.create({
-            active: true,
-            url: 'https://www.google.co.in/search?q=' + text
-        }, function (tab) {});
-
-    });
 
 function closeTab(tabId) {
     console.log("Now:" + new Date());
@@ -306,26 +253,6 @@ function closeTab(tabId) {
 }
 
 
-function addtoWords(message, sender) {
-
-
-    if (_.contains(urls, sender.url))
-        return;
-    urls.push(sender.url);
-
-
-    var tagSet = autotags.analyzeText(message.source, 1000);
-    for (var t in tagSet.tags) {
-        var tag = tagSet.tags[t];
-
-        if (tag.score > 1) {
-            
-       // console.log('Adding tag '+ tag._term.toLowerCase());
-            wordTrie.add(tag._term.toLowerCase());
-        }
-    }
-
-}
 
 
 function sendTabInfo(response) {
