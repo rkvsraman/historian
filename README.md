@@ -5,7 +5,7 @@
 Historian is browsing history on steroids for Google Chrome. 
 
 
-Since browsers were made about 2 decades ago, the history and bookmarking feature of browser has remained more or less the same. They have been nothing but a list web pages stored without much context or order(except chronological). It is surprising that nothing more has been done with it for such a long time.
+Since browsers were made about 2 decades ago, the history and bookmarking feature of browser has remained more or less the same. They have been nothing but a list of web pages stored without much context or order(except chronological). It is surprising that nothing more has been done with it for such a long time.
 
 Historian attempts to break this monotony. Historian maintains the history of web pages as a trail. A trail which maintains information not only of the web page, but also the context of previous and next ones. 
 
