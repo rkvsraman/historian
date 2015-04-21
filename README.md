@@ -25,10 +25,10 @@ Moreover you can add searchable tags and notes to the saved trail. Next time you
 
 ![Search for a saved trail](images/Historian3.png?raw=true "Search for a saved trail")
 
-
-
 Historian also maintains a list of closed tabs (And all the pages that were visited in that tab). So you no longer have to worry if you have closed any tab by mistake. 
 
+##Note on Privacy
+Rest assured, Historian does *NOT* send any data to any sevrers or location outside your machine. 
 
 
 
