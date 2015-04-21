@@ -28,7 +28,7 @@ Moreover you can add searchable tags and notes to the saved trail. Next time you
 Historian also maintains a list of closed tabs (And all the pages that were visited in that tab). So you no longer have to worry if you have closed any tab by mistake. 
 
 ##Note on Privacy
-Rest assured, Historian does *NOT* send any data to any sevrers or location outside your machine. 
+Rest assured, Historian does *NOT* send any data to any servers or location outside your machine. 
 
 
 
