@@ -34,6 +34,7 @@ pathfinder.controller('SavedCtrl',
 
                 $scope.$apply(function () {
                     $scope.tabs = message.results;
+                    console.log('Saved Tabs %j',$scope.tabs);
                     if(message.results.length == 0)
                     $scope.no_tabs = true;
                 });

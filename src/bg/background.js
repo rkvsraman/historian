@@ -431,7 +431,7 @@ function getSavedTabs(response) {
 
 
     function populateDB(tx) {
-        tx.executeSql('SELECT  id,note,tags,created_time,no_of_pages FROM pathfinder', [], function (tx, results) {
+        tx.executeSql('SELECT  id,note,tags,created_time,no_of_pages,graphData FROM pathfinder', [], function (tx, results) {
 
             var qResults = [];
             for (var i = 0; i < results.rows.length; i++) {
@@ -441,6 +441,7 @@ function getSavedTabs(response) {
                 resultitem.tags = results.rows.item(i).tags;
                 resultitem.created_time = new Date(results.rows.item(i).created_time).toLocaleDateString();
                 resultitem.no_of_pages = results.rows.item(i).no_of_pages;
+                resultitem.nodes = JSON.parse(results.rows.item(i).graphData);
                 qResults.push(resultitem);
             }
 
