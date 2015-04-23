@@ -13,7 +13,19 @@
             <div><strong>{{tab.note | limitTo:40}} </strong></div>
             <div><em>Tags: {{tab.tags | limitTo:80}}</em></div>
             <div><em>Created on: {{tab.created_time | limitTo:80}}</em></div>
-            <div><em>Pages: {{tab.no_of_pages | limitTo:80}}</em></div>
+             <div><a class="btn btn-primary btn-xs" data-toggle="collapse" href="#collapseExample-{{$index}}" aria-expanded="false" aria-controls="collapseExample-{{$index}}">
+  {{tab.no_of_pages}} page(s) 
+</a>
+            </div>
+            <div class="collapse" id="collapseExample-{{$index}}">
+                <div class="well">
+                   <ol>
+                    <li ng-repeat="page in tab.s_pages">
+                        {{page.title}} </li>
+                    </ol>
+                </div>
+            </div>
+           
 
         </div>
         <div class="col-xs-1 pull-right">
