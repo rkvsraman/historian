@@ -54,7 +54,14 @@ pathfinder.controller('SavedCtrl',
                             tab.id = responses[i].id;
                             tab.note = responses[i].note;
                             tab.creation_time = responses[i].creation_time;
-                            tab.tags = responses[i].tags;
+                            tab.tags = ['No labels'];
+                            if(responses[i].tags){
+                                tab.tags = responses[i].tags.split(",");
+                                if(tab.tags == "undefined"){
+                                    tab.tags = ['No labels'];
+                                }
+                                    
+                            }
                             tab.no_of_pages = responses[i].no_of_pages;
                             tab.s_pages = [];
                             if (responses[i].nodes && responses[i].nodes.graph && responses[i].nodes.graph._nodes) {

@@ -18,7 +18,7 @@
 <div class="row" ng-show="!showGraph">
     <div class="well well-lg">
         <div class="list-group">
-            <a href="#" class="list-group-item {{link.showClass}}" ng-repeat="link in links" ng-click="openLink(link.link)">
+            <a href="#" title="{{link.link}}" class="list-group-item {{link.showClass}}" ng-repeat="link in links" ng-click="openLink(link.link)">
   {{link.title}}
   </a>
 

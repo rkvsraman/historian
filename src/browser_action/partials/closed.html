@@ -9,20 +9,20 @@
             </button>
         </div>
         <div class="col-xs-6 col-xs-offset-1">
-            <div><strong>{{tab.title | limitTo:40}} </strong>
-            </div>
-            <div><em>{{tab.url | limitTo:80}}</em>
+            <div><strong>{{tab.title | limitTo:40}} </strong> 
             </div>
             <div><a class="btn btn-primary btn-xs" data-toggle="collapse" href="#closedPage-{{$index}}" aria-expanded="false" aria-controls="closedPage-{{$index}}">
   Pages <span class="badge">{{tab.totalpages}}</span> 
-</a>
-            </div>
+</a></div>
+            
+            
             <div class="collapse" id="closedPage-{{$index}}">
                 <div class="well">
-                   <ol>
-                    <li ng-repeat="page in tab.pages">
-                        {{page.title}} </li>
-                    </ol>
+                 <div class="list-group">
+                        <a href="#" title="{{page.link}}" class="list-group-item list-group-item-info" ng-repeat="page in tab.pages">
+  {{page.title}}
+  </a>
+                    </div>
                 </div>
             </div>
 
