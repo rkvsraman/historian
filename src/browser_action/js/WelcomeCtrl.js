@@ -312,6 +312,7 @@ pathfinder.controller('WelcomeCtrl',
         }
 
         $scope.showDetails = false;
+        $scope.showGraph = true;
         $scope.askDetails = function () {
 
             $scope.showDetails = !$scope.showDetails;

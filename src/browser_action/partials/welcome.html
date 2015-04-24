@@ -1,19 +1,32 @@
-
-    <div class="row closedrow" ng-show="showDetails">
-        <div class="form-group"><input autofocus="true" type="text" ng-model="note" class="form-control" placeholder="Enter a note"></div>
-        <div class="form-group"><input type="text" ng-model="tags" class="form-control"
-                                       placeholder="Add some tags (separated by comma)"></div>
-        <div class="form-group"> <button class="btn btn-primary" title="Save" ng-click="saveTab()">Save</button></div>
-
+<div class="row closedrow" ng-show="showDetails">
+    <div class="form-group">
+        <input autofocus="true" type="text" ng-model="note" class="form-control" placeholder="Enter a note">
     </div>
-    <div class="row">
-        <canvas id="showgraph" width="700" height="400"></canvas>
-
+    <div class="form-group">
+        <input type="text" ng-model="tags" class="form-control" placeholder="Add some tags (separated by comma)">
     </div>
-    <div class="row">
-        <div class="col-xs-9">
-            <strong>{{title}} </strong>
-            <em>{{link}}</em>
-        </div>
+    <div class="form-group">
+        <button class="btn btn-primary" title="Save" ng-click="saveTab()">Save</button>
     </div>
 
+</div>
+
+<div class="row" ng-show="showGraph">
+    <canvas id="showgraph" width="700" height="400"></canvas>
+
+</div>
+<div class="row" ng-show="!showGraph">
+    <h1>Hello</h1>
+
+</div>
+<div class="row">
+    <div class="col-xs-9">
+        <button class="btn btn-primary btn-xs" ng-click="showGraph = !showGraph">Show details</button>
+    </div>
+</div>
+<div class="row" ng-show=!showGraph>
+    <div class="col-xs-9">
+        <strong>{{title}} </strong>
+        <em>{{link}}</em>
+    </div>
+</div>
