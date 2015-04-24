@@ -1,6 +1,7 @@
 {
     "name": "Historian",
-    "version": "0.0.1",
+    "short_name": "Historian",
+    "version": "0.0.3",
     "manifest_version": 2,
     "description": "History on steroids",
     "homepage_url": "https://github.com/rkvsraman/historian",
@@ -36,9 +37,5 @@
         "icons/*"
 
     ]
-
-
-
-
 
 }
