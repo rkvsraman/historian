@@ -13,11 +13,11 @@
             <div><strong>{{tab.note | limitTo:40}} </strong></div>
             <div><em>Tags: {{tab.tags | limitTo:80}}</em></div>
             <div><em>Created on: {{tab.created_time | limitTo:80}}</em></div>
-             <div><a class="btn btn-primary btn-xs" data-toggle="collapse" href="#collapseExample-{{$index}}" aria-expanded="false" aria-controls="collapseExample-{{$index}}">
-  {{tab.no_of_pages}} page(s) 
+             <div><a class="btn btn-primary btn-xs" data-toggle="collapse" href="#savedPage-{{$index}}" aria-expanded="false" aria-controls="savedPage-{{$index}}">
+  Pages <span class="badge">{{tab.no_of_pages}}</span> 
 </a>
             </div>
-            <div class="collapse" id="collapseExample-{{$index}}">
+            <div class="collapse" id="savedPage-{{$index}}">
                 <div class="well">
                    <ol>
                     <li ng-repeat="page in tab.s_pages">

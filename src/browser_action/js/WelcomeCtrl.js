@@ -23,8 +23,13 @@ pathfinder.controller('WelcomeCtrl',
             var that = {
                 init: function (pSystem) {
                     sys = pSystem
-                    sys.screen({size: {width: dom.width(), height: dom.height()},
-                        padding: [36, 60, 36, 60]})
+                    sys.screen({
+                        size: {
+                            width: dom.width(),
+                            height: dom.height()
+                        },
+                        padding: [36, 60, 36, 60]
+                    })
 
                     $(window).resize(that.resize)
                     that.resize()
@@ -35,7 +40,12 @@ pathfinder.controller('WelcomeCtrl',
                 resize: function () {
                     canvas.width = $(window).width()
                     canvas.height = .60 * $(window).height()
-                    sys.screen({size: {width: canvas.width, height: canvas.height}})
+                    sys.screen({
+                        size: {
+                            width: canvas.width,
+                            height: canvas.height
+                        }
+                    })
                     _vignette = null
                     that.redraw()
                 },
@@ -68,23 +78,53 @@ pathfinder.controller('WelcomeCtrl',
 
                         if (node.data.link.indexOf("chrome://newtab") != -1) {
 
-                            gfx.oval(pt.x - w / 2, pt.y - w / 2, w, w, {fill: "#003300", alpha: node.data.alpha})
-                            gfx.text("S", pt.x, pt.y + 7, {color: "white", align: "center", font: "Arial", size: 12})
+                            gfx.oval(pt.x - w / 2, pt.y - w / 2, w, w, {
+                                fill: "#003300",
+                                alpha: node.data.alpha
+                            })
+                            gfx.text("S", pt.x, pt.y + 7, {
+                                color: "white",
+                                align: "center",
+                                font: "Arial",
+                                size: 12
+                            })
                             $scope.$apply(function () {
                                 $scope.startedAsNewTab = true;
                             });
 
-                        }
-                        else if (node.name === '2' && $scope.startedAsNewTab) {
-                            gfx.oval(pt.x - w / 2, pt.y - w / 2, w, w, {fill: "#1947A3", alpha: node.data.alpha})
-                            gfx.text(node.name, pt.x, pt.y + 7, {color: "white", align: "center", font: "Arial", size: 12})
-                        }
-                        else if (node.data.link === $scope.graphData.lastURL) {
-                            gfx.oval(pt.x - w / 2, pt.y - w / 2, w, w, {fill: "#FF6666", alpha: node.data.alpha})
-                            gfx.text(node.name, pt.x, pt.y + 7, {color: "black", align: "center", font: "Arial", size: 12})
+                        } else if (node.name === '2' && $scope.startedAsNewTab) {
+                            gfx.oval(pt.x - w / 2, pt.y - w / 2, w, w, {
+                                fill: "#1947A3",
+                                alpha: node.data.alpha
+                            })
+                            gfx.text(node.name, pt.x, pt.y + 7, {
+                                color: "white",
+                                align: "center",
+                                font: "Arial",
+                                size: 12
+                            })
+                        } else if (node.data.link === $scope.graphData.lastURL) {
+                            gfx.oval(pt.x - w / 2, pt.y - w / 2, w, w, {
+                                fill: "#FF6666",
+                                alpha: node.data.alpha
+                            })
+                            gfx.text(node.name, pt.x, pt.y + 7, {
+                                color: "black",
+                                align: "center",
+                                font: "Arial",
+                                size: 12
+                            })
                         } else {
-                            gfx.oval(pt.x - w / 2, pt.y - w / 2, w, w, {fill: "#FFCC00", alpha: node.data.alpha})
-                            gfx.text(node.name, pt.x, pt.y + 7, {color: "black", align: "center", font: "Arial", size: 12})
+                            gfx.oval(pt.x - w / 2, pt.y - w / 2, w, w, {
+                                fill: "#FFCC00",
+                                alpha: node.data.alpha
+                            })
+                            gfx.text(node.name, pt.x, pt.y + 7, {
+                                color: "black",
+                                align: "center",
+                                font: "Arial",
+                                size: 12
+                            })
                         }
                     })
 
@@ -110,7 +150,10 @@ pathfinder.controller('WelcomeCtrl',
                         bot.addColorStop(0, "rgba(255,255,255,0)")
                         bot.addColorStop(1, "white")
 
-                        _vignette = {top: top, bot: bot}
+                        _vignette = {
+                            top: top,
+                            bot: bot
+                        }
                     }
 
                     // top
@@ -154,11 +197,10 @@ pathfinder.controller('WelcomeCtrl',
                                 }
 
                                 dom.addClass('linkable')
-                                //window.status = selected.node.data.link.replace(/^\//, "http://" + window.location.host + "/").replace(/^#/, '')
-                            }
-                            else {
+                                    //window.status = selected.node.data.link.replace(/^\//, "http://" + window.location.host + "/").replace(/^#/, '')
+                            } else {
                                 dom.removeClass('linkable')
-                                //window.status = ''
+                                    //window.status = ''
                             }
 
 
@@ -249,7 +291,11 @@ pathfinder.controller('WelcomeCtrl',
             theUI.edges = {};
             var i = 1;
             for (var properties in nodes) {
-                theUI.nodes[i] = {color: CLR.branch, shape: "dot", alpha: 1};
+                theUI.nodes[i] = {
+                    color: CLR.branch,
+                    shape: "dot",
+                    alpha: 1
+                };
                 theUI.nodes[i].link = properties;
                 theUI.nodes[i].title = nodes[properties].title;
                 i++;
@@ -270,7 +316,12 @@ pathfinder.controller('WelcomeCtrl',
             }
 
             var sys = arbor.ParticleSystem();
-            sys.parameters({stiffness: 900, repulsion: 2000, gravity: true, dt: 0.015})
+            sys.parameters({
+                stiffness: 900,
+                repulsion: 2000,
+                gravity: true,
+                dt: 0.015
+            });
             sys.renderer = Renderer("#showgraph");
             sys.graft(theUI);
         }
@@ -286,23 +337,27 @@ pathfinder.controller('WelcomeCtrl',
 
         function setLink(link) {
 
-            chrome.runtime.sendMessage({request: 'openLink',
+            chrome.runtime.sendMessage({
+                request: 'openLink',
                 link: link,
-                tabId: $scope.graphData.id}, function (response) {
+                tabId: $scope.graphData.id
+            }, function (response) {
                 window.close();
             });
         }
 
         function getGraphData() {
-            chrome.runtime.sendMessage({request: 'getTabInfo'}, function (response) {
+            chrome.runtime.sendMessage({
+                request: 'getTabInfo'
+            }, function (response) {
 
                 $scope.$apply(function () {
                     if (response.error) {
                         $scope.title = "No information available for this tab";
 
-                    }
-                    else {
+                    } else {
                         $scope.graphData = response;
+                        $scope.buildLinks(response);
                         setUpgraph(response);
                     }
 
@@ -313,18 +368,59 @@ pathfinder.controller('WelcomeCtrl',
 
         $scope.showDetails = false;
         $scope.showGraph = true;
+        $scope.toggleGraphLabel = 'Show pages';
+        $scope.links = [];
         $scope.askDetails = function () {
-
             $scope.showDetails = !$scope.showDetails;
         }
 
+        $scope.buildLinks = function (graphData) {
+            var graph = graphData.graph;
+            var nodes = graph._nodes;
+            for (var properties in nodes) {
+                var elem = {};
+                elem.link = properties;
+                elem.title = nodes[properties].title;
+                if(elem.link === $scope.graphData.lastURL){
+                    elem.showClass = 'active';
+                    
+                }
+                else{
+                    elem.showClass = 'disabled';
+                }
+                $scope.links.push(elem);
+            }
+        };
+
         $scope.saveTab = function () {
-            chrome.runtime.sendMessage({request: 'saveTab',
+            chrome.runtime.sendMessage({
+                request: 'saveTab',
                 note: $scope.note,
                 tags: $scope.tags,
-                tabId: $scope.graphData.id}, function (response) {
+                tabId: $scope.graphData.id
+            }, function (response) {
                 $scope.askDetails();
             });
+        }
+
+
+        $scope.openLink = function (link) {
+
+            chrome.runtime.sendMessage({
+                request: 'openLink',
+                link: link,
+                tabId: $scope.graphData.id
+            }, function (response) {
+                window.close();
+            });
+        }
+
+        $scope.toggleGraph = function () {
+            $scope.showGraph = !$scope.showGraph;
+            if ($scope.showGraph)
+                $scope.toggleGraphLabel = 'Show pages';
+            else
+                $scope.toggleGraphLabel = 'Show trail';
         }
 
         $scope.$on('saveTab', function (event, data) {

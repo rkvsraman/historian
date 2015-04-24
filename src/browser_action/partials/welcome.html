@@ -16,15 +16,22 @@
 
 </div>
 <div class="row" ng-show="!showGraph">
-    <h1>Hello</h1>
+    <div class="well well-lg">
+        <div class="list-group">
+            <a href="#" class="list-group-item {{link.showClass}}" ng-repeat="link in links" ng-click="openLink(link.link)">
+  {{link.title}}
+  </a>
 
+        </div>
+
+    </div>
 </div>
 <div class="row">
     <div class="col-xs-9">
-        <button class="btn btn-primary btn-xs" ng-click="showGraph = !showGraph">Show details</button>
+        <button class="btn btn-primary btn-xs" ng-click="toggleGraph()">{{toggleGraphLabel}}</button>
     </div>
 </div>
-<div class="row" ng-show=!showGraph>
+<div class="row" ng-show=showGraph>
     <div class="col-xs-9">
         <strong>{{title}} </strong>
         <em>{{link}}</em>

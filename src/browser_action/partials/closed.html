@@ -13,11 +13,11 @@
             </div>
             <div><em>{{tab.url | limitTo:80}}</em>
             </div>
-            <div><a class="btn btn-primary btn-xs" data-toggle="collapse" href="#collapseExample-{{$index}}" aria-expanded="false" aria-controls="collapseExample-{{$index}}">
-  {{tab.totalpages}} page(s) 
+            <div><a class="btn btn-primary btn-xs" data-toggle="collapse" href="#closedPage-{{$index}}" aria-expanded="false" aria-controls="closedPage-{{$index}}">
+  Pages <span class="badge">{{tab.totalpages}}</span> 
 </a>
             </div>
-            <div class="collapse" id="collapseExample-{{$index}}">
+            <div class="collapse" id="closedPage-{{$index}}">
                 <div class="well">
                    <ol>
                     <li ng-repeat="page in tab.pages">
