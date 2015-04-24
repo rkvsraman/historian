@@ -22,7 +22,7 @@
             <div class="collapse" id="savedPage-{{$index}}">
                 <div class="well">
                     <div class="list-group">
-                        <a href="#" title="{{page.link}}" class="list-group-item list-group-item-info" ng-repeat="page in tab.s_pages">
+                        <a href="#" title="{{page.link}}" class="list-group-item list-group-item-info" ng-repeat="page in tab.s_pages" ng-click="openTab(tab.id)">
   {{page.title}}
   </a>
                     </div>

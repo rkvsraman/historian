@@ -54,11 +54,11 @@ pathfinder.controller('SavedCtrl',
                             tab.id = responses[i].id;
                             tab.note = responses[i].note;
                             tab.creation_time = responses[i].creation_time;
-                            tab.tags = ['No labels'];
+                            tab.tags = ['No tags'];
                             if(responses[i].tags){
                                 tab.tags = responses[i].tags.split(",");
                                 if(tab.tags == "undefined"){
-                                    tab.tags = ['No labels'];
+                                    tab.tags = ['No tags'];
                                 }
                                     
                             }

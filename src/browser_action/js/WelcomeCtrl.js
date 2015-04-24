@@ -399,8 +399,9 @@ pathfinder.controller('WelcomeCtrl',
                 tags: $scope.tags,
                 tabId: $scope.graphData.id
             }, function (response) {
-                $scope.askDetails();
+                
             });
+            $scope.askDetails();
         }
 
 
