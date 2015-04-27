@@ -24,11 +24,11 @@
     "permissions": [
 
         "tabs",
+        "webRequest",
         "unlimitedStorage",
-        "http://*/*",
-        "https://*/*"
+       "<all_urls>"
     ],
-    
+
     "web_accessible_resources": [
         "js/*.js",
         "css/*.css",

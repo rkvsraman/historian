@@ -14,7 +14,7 @@ var urls = [];
 chrome.runtime.onMessage.addListener(function (message, sender, response) {
 
 
-    console.log("Now:" + new Date());
+    
     console.log("Message %j Sender %j", message, sender);
 
     if (message.request === 'getTabInfo') {
@@ -96,7 +96,7 @@ chrome.runtime.onMessage.addListener(function (message, sender, response) {
         response({
             status: true
         });
-        console.log("Sent response")
+       
     }
     if (message.request === 'deleteSavedTab') {
         var id = message.id;
@@ -132,6 +132,7 @@ chrome.runtime.onMessage.addListener(function (message, sender, response) {
 
 chrome.tabs.onCreated.addListener(function (tab) {
 
+    console.log('Tab ID created %j %j',tab.Id, tab.url);
     createNewTab(tab, false);
 
 
@@ -139,7 +140,7 @@ chrome.tabs.onCreated.addListener(function (tab) {
 
 chrome.tabs.onUpdated.addListener(function (tabID, changeinfo, tab) {
 
-    console.log("Now:" + new Date());
+ console.log('Tab ID updated %j %j',tab.Id, tab.url);
 
     var tabUrl = tab.url;
 
@@ -164,7 +165,7 @@ chrome.tabs.onUpdated.addListener(function (tabID, changeinfo, tab) {
         }
         
         if (tabInfo) {
-            console.log("Tab id:" + tabID + " last_url:" + tabInfo.lastURL);
+          
             if (tabInfo.lastURL === 'emptyurl') {
                 tabInfo.firstURL = tabUrl;
                 if (tabUrl.indexOf('chrome://newtab') == -1) {
@@ -244,10 +245,28 @@ chrome.tabs.onRemoved.addListener(function (tabId, removeInfo) {
 });
 
 
+chrome.webRequest.onHeadersReceived.addListener(function(details) {
+    if (details.tabId !== -1) {
+       console.log('Tab ID Received header %j %j %j ', details.tabId , details.url ,   getHeaderFromHeaders(details.responseHeaders, 'content-type'));
+        
+    }
+}, {
+    urls: ['<all_urls>']
+}, ['responseHeaders']);
 
+
+
+function getHeaderFromHeaders(headers, headerName) {
+    for (var i = 0; i < headers.length; ++i) {
+        var header = headers[i];
+        if (header.name.toLowerCase() === headerName) {
+            return header;
+        }
+    }
+}
 
 function closeTab(tabId) {
-    console.log("Now:" + new Date());
+    
 
     console.log("Closing tab:" + tabId);
     var tabInfo = tabs[tabId];
