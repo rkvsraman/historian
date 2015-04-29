@@ -3,18 +3,29 @@ var browserGraph = {};
 browserGraph.lastURL = '';
 var current_tab = 0;
 var db;
-
+var htmlURLs = [];
 
 var initialTabsLoaded = false;
 var Graph = require('data-structures').Graph;
+var extractor = require('unfluff');
+var Trie = require('data-structures').Trie;
+var words = new Graph();
+var wordTrie = new Trie();
+var autotags = new AUTOTAGS.createTagger({});
+autotags.COMPOUND_TAG_SEPARATOR = ' ';
+autotags.NGRAM_BASED_ON_CAPITALISATION_BOOST = 7;
+autotags.BIGRAM_BOOST = 5;
+
 var urls = [];
+//data = extractor('<html><head><title>Hello</title></head><body><p>Vinoj is cool</p></body></html>', 'en');
+//console.log('Data %j', data);
 
 
 
 chrome.runtime.onMessage.addListener(function (message, sender, response) {
 
 
-    
+
     console.log("Message %j Sender %j", message, sender);
 
     if (message.request === 'getTabInfo') {
@@ -96,7 +107,7 @@ chrome.runtime.onMessage.addListener(function (message, sender, response) {
         response({
             status: true
         });
-       
+
     }
     if (message.request === 'deleteSavedTab') {
         var id = message.id;
@@ -105,7 +116,7 @@ chrome.runtime.onMessage.addListener(function (message, sender, response) {
             success: true
         });
     }
-    
+
 
     if (message.request === 'saveTab') {
 
@@ -127,12 +138,23 @@ chrome.runtime.onMessage.addListener(function (message, sender, response) {
         openSavedTab(id);
     }
 
+    if (message.request === 'getSource') {
+
+        console.log('Data %j', extractor(message.source, 'en'));
+        addtoWords(message, sender);
+
+        response({
+            success: true
+        });
+
+    }
+
 
 });
 
 chrome.tabs.onCreated.addListener(function (tab) {
 
-    console.log('Tab ID created %j %j',tab.Id, tab.url);
+    console.log('Tab ID created %j %j', tab.Id, tab.url);
     createNewTab(tab, false);
 
 
@@ -140,7 +162,7 @@ chrome.tabs.onCreated.addListener(function (tab) {
 
 chrome.tabs.onUpdated.addListener(function (tabID, changeinfo, tab) {
 
- console.log('Tab ID updated %j %j',tab.Id, tab.url);
+    console.log('Tab ID updated %j %j', tab.Id, tab.url);
 
     var tabUrl = tab.url;
 
@@ -158,14 +180,13 @@ chrome.tabs.onUpdated.addListener(function (tabID, changeinfo, tab) {
 
     if (changeinfo.status === 'loading') {
         var tabInfo = tabs[tabID];
-        if(!tabInfo)
-        {
-            createNewTab(tab,false);
+        if (!tabInfo) {
+            createNewTab(tab, false);
             tabInfo = tabs[tabID];
         }
-        
+
         if (tabInfo) {
-          
+
             if (tabInfo.lastURL === 'emptyurl') {
                 tabInfo.firstURL = tabUrl;
                 if (tabUrl.indexOf('chrome://newtab') == -1) {
@@ -214,11 +235,28 @@ chrome.tabs.onUpdated.addListener(function (tabID, changeinfo, tab) {
                 destNode.title = tab.title;
                 tabInfo.lastTitle = tab.title
             }
-            
-            } else {
+
+        } else {
             console.log("No tab info found for id:" + tabID);
         }
+
+        console.log('URLS %j', htmlURLs);
+        if (_.contains(htmlURLs, tabUrl)) {
+            chrome.tabs.executeScript(tabID, {
+                file: "src/bg/getSource.js"
+            }, function () {
+                if (chrome.extension.lastError) {
+                    console.log("Count not insert script %j", chrome.extension.lastError);
+                }
+            });
+        } else {
+            console.log('URL not recorded');
+        }
+
+
     }
+
+
 
 });
 
@@ -245,10 +283,21 @@ chrome.tabs.onRemoved.addListener(function (tabId, removeInfo) {
 });
 
 
-chrome.webRequest.onHeadersReceived.addListener(function(details) {
+chrome.webRequest.onHeadersReceived.addListener(function (details) {
     if (details.tabId !== -1) {
-       console.log('Tab ID Received header %j %j %j ', details.tabId , details.url ,   getHeaderFromHeaders(details.responseHeaders, 'content-type'));
-        
+        var header = getHeaderFromHeaders(details.responseHeaders, 'content-type');
+        if (header) {
+
+            if (header.value.split(';', 1)[0] && header.value.split(';', 1)[0] === 'text/html') {
+                console.log("Mimetype " + header.value.split(';', 1)[0]);
+
+                console.log("data url:" + details.url);
+                htmlURLs.push(details.url);
+            }
+
+        }
+
+
     }
 }, {
     urls: ['<all_urls>']
@@ -266,7 +315,7 @@ function getHeaderFromHeaders(headers, headerName) {
 }
 
 function closeTab(tabId) {
-    
+
 
     console.log("Closing tab:" + tabId);
     var tabInfo = tabs[tabId];
@@ -619,6 +668,27 @@ function setLastUrl(message, tabId) {
     }
 }
 
+function addtoWords(message, sender) {
+
+
+    console.log('Raw HTML is:' + message.source);
+
+
+    if (_.contains(urls, sender.url))
+        return;
+    urls.push(sender.url);
+
+
+    var tagSet = autotags.analyzeText(message.source, 1000);
+    for (var t in tagSet.tags) {
+        var tag = tagSet.tags[t];
+
+        if (tag.score > 1) {
+            wordTrie.add(tag._term.toLowerCase());
+        }
+    }
+
+}
 
 function openDB() {
 

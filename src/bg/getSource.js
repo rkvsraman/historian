@@ -1,4 +1,4 @@
-
+//console.log('Document source %j',document.documentElement.outerHTML); 
 
 function getTextNodes(document_root) {
 //console.log('Get source called');
@@ -25,8 +25,12 @@ function getTextNodes(document_root) {
 
 }
 
-chrome.runtime.sendMessage({
+/*chrome.runtime.sendMessage({
     request: "getSource",
     source: getTextNodes(document)
-});
+});*/
 
+chrome.runtime.sendMessage({
+    request: "getSource",
+    source: document.documentElement.outerHTML
+});
